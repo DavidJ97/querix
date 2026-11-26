@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {evaluate} from '../packages/decision-engine/engine.mjs';
+const graph=JSON.parse(readFileSync(new URL('../training/pilot-fictional.json',import.meta.url)));
+test('first question',()=>assert.equal(evaluate(graph).questionId,'q1'));
+test('missing badge',()=>assert.equal(evaluate(graph,{q1:'non'}).verdict,'HOLD'));
+test('complete',()=>assert.equal(evaluate(graph,{q1:'oui',q2:'oui'}).verdict,'DONE'));
+test('redirect',()=>assert.equal(evaluate(graph,{q1:'oui',q2:'non'}).verdict,'STOP'));
+test('expired',()=>assert.equal(evaluate(graph,{},Date.parse('2100-01-01')).verdict,'HOLD'));
+test('invalid answer',()=>assert.equal(evaluate(graph,{q1:'constructor'}).verdict,'HOLD'));
