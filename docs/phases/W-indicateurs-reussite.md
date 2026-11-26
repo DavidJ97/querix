@@ -1,0 +1,2 @@
+# Phase W : Indicateurs
+Cibles proposées : 100% des scénarios approuvés réussis, zéro erreur critique de verdict, zéro fuite, parité des trois modes, WCAG 2.2 AA, LCP <=2.5s, INP <=200ms, CLS <=0.1, 30–60 FPS, latence interactive <100ms si faisable. Mesurer temps de formation, exactitude, rétention et satisfaction avec participants consentants, données agrégées, comparaison avant/après et taille d'échantillon documentée. Ne pas mesurer les patients ni utiliser les scores comme sanction. Aucun résultat mesuré. Issue #23 ouverte.
