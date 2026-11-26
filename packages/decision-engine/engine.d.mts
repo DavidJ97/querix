@@ -1,0 +1,1 @@
+export function evaluate(graph: unknown, answers?: Record<string,string>, now?: number): {verdict:string;reason?:string;nodeId?:string}|{questionId:string;prompt:string;options:string[]};
