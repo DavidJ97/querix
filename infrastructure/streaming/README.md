@@ -1,0 +1,3 @@
+# Streaming local
+Utiliser https://github.com/EpicGamesExt/PixelStreamingInfrastructure et sélectionner la branche correspondant exactement à la version et au plugin Unreal utilisés. Les URL et ports du fichier exemple sont indicatifs, à adapter à la version retenue. Ne pas utiliser cette configuration pour une exposition Internet.
+Prérequis : jeu empaqueté, GPU et encodeur compatibles, plugin activé, infrastructure de signalisation officielle. Tester localement avant LAN puis accès distant sécurisé. Aucun script d'installation automatique fourni tant que le matériel et la version UE ne sont pas connus.
