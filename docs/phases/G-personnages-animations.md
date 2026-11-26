@@ -6,6 +6,9 @@ Jeune homme à peau foncée, cheveux courts bouclés, chandail à capuche marine
 ## PNJ
 Patients adultes et aînés, parents, enfants accompagnés, agents administratifs, personnel infirmier, responsables. Personnages fictifs, diversité de morphologies, âges et apparences. Aucun visage de patient réel. Ne pas déduire une condition médicale de l'apparence.
 
+## Personnel infirmier moderne
+Uniforme médical contemporain bleu marine ou turquoise, pantalon médical, espadrilles professionnelles blanches, carte d'identification fictive, cheveux attachés selon le personnage. Aucune coiffe traditionnelle. Variantes à valider.
+
 ## Animations
 Repos, respiration, clignement, marche, course, virage, arrêt, interaction, prise et dépôt d'objet, ouverture de porte, conversation, écoute, attente, assise, lever, montée d'escalier. Saut et actions spécialisées selon chapitre. Transitions via machine d'états et blend spaces; IK pieds et mains selon besoin. Expressions sobres.
 
