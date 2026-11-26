@@ -4,7 +4,7 @@
 Interface institutionnelle contemporaine, sobre et accessible. Identité Quérix indépendante, sans reproduire les marques officielles ni suggérer une approbation gouvernementale. Jeu low-poly contemporain cohérent avec les lieux réels.
 
 ## Logo
-Proposition à valider : monogramme Q géométrique évoquant un parcours et une orientation. Prévoir logotype Quérix, icône carrée, versions monochrome et inversée. Aucun logo définitif livré à cette étape.
+Référence retenue : fleur de lys blanche fusionnée avec un emblème médical, sur carré arrondi à dégradé turquoise, bleu royal et marine. Logotype Quérix. [Première vectorisation SVG](../../assets/brand/querix-icon.svg). Reconstruction manuelle approximative de la référence basse résolution, à valider visuellement. Ne pas suggérer une affiliation officielle.
 
 ## Palette proposée
 | Jeton | Valeur | Usage |
@@ -52,7 +52,7 @@ Objectif WCAG 2.2 AA : contraste texte normal 4,5:1, grand texte 3:1, éléments
 - [ ] Tester contrastes, clavier et agrandissement.
 - [ ] Valider cohérence UI et jeu.
 
-Les choix graphiques restent des propositions. Aucun logo, composant codé ou audit de conformité n'est encore livré. La phase #2 reste ouverte.
+Les choix graphiques restent des propositions. Une première vectorisation est livrée; les composants et l’audit restent à produire. La phase #2 reste ouverte.
 
 ## Suite
 Phase C : architecture des pages et navigation.
