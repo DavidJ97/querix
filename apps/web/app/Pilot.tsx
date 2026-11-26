@@ -1,6 +1,6 @@
 'use client';
 import {useState,useEffect,useRef} from 'react';
-import ClinicGame from './ClinicGame';
+import GameView from './GameView';
 import {evaluate} from '../../../packages/decision-engine/engine.mjs';
 import graph from '../../../training/pilot-fictional.json';
 type Mode='professional'|'hybrid'|'immersive';
@@ -25,5 +25,5 @@ export default function Pilot({initialMode='professional'}:{initialMode?:Mode}){
  if('questionId' in result)result.options.forEach((o,i)=>{const x=i===0?-1.25:1.25;poly([[x-.65,0,7.98],[x+.65,0,7.98],[x+.65,2.2,7.98],[x-.65,2.2,7.98]],'#1648d8');const [sx,sy]=project(x,1.65,7.96);ctx.fillStyle='white';ctx.font='bold 18px sans-serif';ctx.textAlign='center';ctx.fillText(o.toUpperCase(),sx,sy);});
  else {ctx.fillStyle='#062b59';ctx.font='bold 30px sans-serif';ctx.textAlign='center';ctx.fillText(result.verdict,w/2,h/2);}
  },[position,result,mode]);
- return <section><p>Mission fictive, sans décision clinique.</p><div>{(['professional','hybrid','immersive'] as Mode[]).map((m,i)=><button key={m} aria-pressed={mode===m} onClick={()=>setMode(m)}>{['Professionnel','Hybride','Immersif'][i]}</button>)}</div>{mode!=='professional'&&'questionId' in result&&<ClinicGame options={result.options} onAnswer={choose}/>}{'verdict' in result?<p role="status">{result.verdict}</p>:<><h2>{result.prompt}</h2>{result.options.map(option=><button key={option} onClick={()=>choose(option)}>{mode==='professional'?option:'Porte '+option}</button>)}</>}<button disabled={!history.length} onClick={()=>{setHistory(h=>h.slice(0,-1));setPosition({x:0,z:0})}}>Retour arrière</button><button onClick={()=>{setHistory([]);setPosition({x:0,z:0})}}>Recommencer</button></section>;
+ return <section><p>Mission fictive, sans décision clinique.</p><div>{(['professional','hybrid','immersive'] as Mode[]).map((m,i)=><button key={m} aria-pressed={mode===m} onClick={()=>setMode(m)}>{['Professionnel','Hybride','Immersif'][i]}</button>)}</div>{mode!=='professional'&&'questionId' in result&&<GameView options={result.options} onAnswer={choose}/>}{'verdict' in result?<p role="status">{result.verdict}</p>:<><h2>{result.prompt}</h2>{result.options.map(option=><button key={option} onClick={()=>choose(option)}>{mode==='professional'?option:'Porte '+option}</button>)}</>}<button disabled={!history.length} onClick={()=>{setHistory(h=>h.slice(0,-1));setPosition({x:0,z:0})}}>Retour arrière</button><button onClick={()=>{setHistory([]);setPosition({x:0,z:0})}}>Recommencer</button></section>;
 }
