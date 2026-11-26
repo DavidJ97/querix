@@ -1,0 +1,37 @@
+{
+  "fictional": true,
+  "status": "approved",
+  "approvalScope": "synthetic test fixture only",
+  "expiresAt": "2099-01-01T00:00:00Z",
+  "start": "q1",
+  "nodes": {
+    "q1": {
+      "type": "question",
+      "prompt": "Le badge fictif de la mission est-il disponible ?",
+      "options": {
+        "oui": "q2",
+        "non": "hold"
+      }
+    },
+    "q2": {
+      "type": "question",
+      "prompt": "La cible de formation est-elle accessible ?",
+      "options": {
+        "oui": "done",
+        "non": "stop"
+      }
+    },
+    "hold": {
+      "type": "terminal",
+      "verdict": "HOLD"
+    },
+    "done": {
+      "type": "terminal",
+      "verdict": "DONE"
+    },
+    "stop": {
+      "type": "terminal",
+      "verdict": "STOP"
+    }
+  }
+}
