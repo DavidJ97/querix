@@ -3,8 +3,8 @@
 Concepts proposés, sans règles cliniques internes ni données patient.
 
 ## 1. Rougeole
-- Univers : Stand de tir à l’arc.
-- Mécanique : Viser les cibles correspondant aux informations pertinentes.
+- Univers : Corridors décisionnels dans une clinique fictive.
+- Mécanique : Chaque intersection représente une question; les portes représentent les réponses. Interaction explicite, validation par le moteur, retour arrière et alternative sans déplacement. Aucun tir à l’arc.
 - Réussite : atteindre le verdict attendu du moteur validé, y compris HOLD, STOP ou DONE.
 - Alternative accessible : interaction équivalente sans déplacement ni précision motrice.
 
