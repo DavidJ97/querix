@@ -1,0 +1,140 @@
+{
+  "status": "planning",
+  "targetTotal": 300,
+  "categories": [
+    {
+      "id": "CHR",
+      "name": "Personnages",
+      "target": 20,
+      "examples": [
+        "Avatar principal",
+        "Infirmière moderne",
+        "Agent administratif",
+        "Responsable",
+        "Patient adulte",
+        "Patient aîné",
+        "Parent",
+        "Enfant",
+        "Bébé",
+        "Variantes adultes"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "ENV",
+      "name": "Architecture",
+      "target": 45,
+      "examples": [
+        "Mur",
+        "Sol",
+        "Plafond",
+        "Colonne",
+        "Porte",
+        "Vitrage",
+        "Escalier",
+        "Ascenseur",
+        "Façade",
+        "Ventilation"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "PRP",
+      "name": "Mobilier et objets",
+      "target": 65,
+      "examples": [
+        "Chaise",
+        "Table",
+        "Comptoir",
+        "Ordinateur fictif",
+        "Imprimante",
+        "Rideau",
+        "Barrière",
+        "Signalétique",
+        "Fontaine",
+        "Carnet fictif"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "GAM",
+      "name": "Objets de jeu",
+      "target": 40,
+      "examples": [
+        "Arc",
+        "Cible",
+        "Pont",
+        "Échelle",
+        "Badge",
+        "Horloge",
+        "Aiguillage",
+        "Train",
+        "Puzzle",
+        "Point de contrôle"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "MAT",
+      "name": "Matériaux et textures",
+      "target": 35,
+      "examples": [
+        "Béton",
+        "Métal",
+        "Verre",
+        "Textile",
+        "Plastique",
+        "Bois",
+        "Carrelage",
+        "Peinture"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "ANI",
+      "name": "Animations",
+      "target": 40,
+      "examples": [
+        "Repos",
+        "Marche",
+        "Course",
+        "Saut",
+        "Interaction",
+        "Conversation",
+        "Assise",
+        "Escalade"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "AUD",
+      "name": "Audio",
+      "target": 25,
+      "examples": [
+        "Pas",
+        "Porte",
+        "Ambiance intérieure",
+        "Ambiance extérieure",
+        "Interaction",
+        "Retour pédagogique"
+      ],
+      "status": "planned"
+    },
+    {
+      "id": "UI",
+      "name": "Interface",
+      "target": 30,
+      "examples": [
+        "Navigation",
+        "Icônes",
+        "HUD",
+        "Dialogue",
+        "Verdict",
+        "Progression",
+        "Chargement",
+        "Accessibilité"
+      ],
+      "status": "planned"
+    }
+  ]
+}
