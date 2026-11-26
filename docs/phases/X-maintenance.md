@@ -1,0 +1,2 @@
+# Phase X : Maintenance
+Responsable métier approuve les règles versionnées, dates d'effet et retrait; responsable technique maintient dépendances, tests, sauvegardes et sécurité. Vérification mensuelle proposée, revue immédiate lors d'une modification officielle ou incident. Règle expirée ou non validée bloque GO; rollback vers version autorisée uniquement. Journal de changements sans données patient. Sauvegardes et restauration testées, procédure d'incident et notification selon obligations applicables. Aucun service de maintenance actif. Issue #24 ouverte.
