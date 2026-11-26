@@ -1,0 +1,2 @@
+# Security policy
+Quérix is a development prototype. Do not submit patient data, internal protocols, credentials or personal information to public issues. Report vulnerabilities privately through GitHub private vulnerability reporting if enabled; otherwise contact the repository owner privately. Do not test against healthcare systems or production services without authorization. No production security certification is claimed.
