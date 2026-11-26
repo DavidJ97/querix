@@ -1,0 +1,2 @@
+# Phase N : Développement web
+Socle Next.js/React/TypeScript dans apps/web. Navigation responsive, recherche des quinze chapitres et exercice fictif DONE/HOLD. Les autres onglets sont des espaces réservés. Aucun protocole réel, moteur métier, API, stockage, PWA installable ou streaming intégré. Installation : cd apps/web && npm install && npm run dev. Versions proposées à vérifier et verrouiller. Compilation et tests non exécutés. Issue #14 ouverte. Suite O : Unreal Engine.
