@@ -1,4 +1,6 @@
 #include "QuerixCharacter.h"
+#include "QuerixDecisionDoor.h"
+#include "EngineUtils.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -24,5 +26,10 @@ void AQuerixCharacter::SetupPlayerInputComponent(UInputComponent* I){
  I->BindAxis("LookUp",this,&APawn::AddControllerPitchInput);
  I->BindAction("Jump",IE_Pressed,this,&ACharacter::Jump);
  I->BindAction("Jump",IE_Released,this,&ACharacter::StopJumping);
- I->BindAction("Interact",IE_Pressed,this,&AQuerixCharacter::OnInteract);
+ I->BindAction("Interact",IE_Pressed,this,&AQuerixCharacter::Interact);
+}
+void AQuerixCharacter::Interact(){
+ AQuerixDecisionDoor* Best=nullptr; float Distance=200.f;
+ for(TActorIterator<AQuerixDecisionDoor> It(GetWorld());It;++It){float D=FVector::Dist(GetActorLocation(),It->GetActorLocation());if(D<Distance){Distance=D;Best=*It;}}
+ if(Best) Best->SelectAnswer(); else OnInteract();
 }
