@@ -1,0 +1,3 @@
+# Phase O : Unreal Engine
+Socle C++ dans game/Querix : descripteur, module, cibles, personnage troisième personne, caméra sur spring arm, déplacement relatif à la caméra, saut et événement Blueprint d'interaction. Entrées classiques clavier/souris provisoires pour le prototype; migration Enhanced Input et tactile à valider.
+Ouvrir avec une version UE5 compatible, générer les fichiers projet, compiler, créer une carte de test et un Blueprint dérivé de QuerixCharacter, assigner un mesh autorisé et le pawn par défaut dans un GameMode. Ajouter sol et collisions, puis PNJ infirmière moderne et interaction fictive. Aucun niveau, mesh, Blueprint binaire, streaming ou moteur métier intégré. Compilation non exécutée. Issue #15 ouverte. Suite P : infrastructure Pixel Streaming.
