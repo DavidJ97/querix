@@ -1,0 +1,2 @@
+# Phase V : Budget
+Estimations CAD non vérifiées : ressources 3D 0–500 $, domaine 15–35 $/an, web 0–40 $/mois, DB 0–40 $/mois, IA 10–100 $/mois, nouveau GPU/serveur 1200–2500 $ si nécessaire. Électricité, taxes, licences, trafic, maintenance et validation institutionnelle à chiffrer. Travail 630–1080 h, hypothèse centrale 840 h à 85 $/h = 71400 $, valorisation théorique et non prix de vente. Vérifier licences Unreal et assets avant diffusion. Issue #22 ouverte.
