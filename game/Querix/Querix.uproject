@@ -1,0 +1,12 @@
+{
+  "FileVersion": 3,
+  "Category": "Training",
+  "Description": "Querix training prototype",
+  "Modules": [
+    {
+      "Name": "Querix",
+      "Type": "Runtime",
+      "LoadingPhase": "Default"
+    }
+  ]
+}
