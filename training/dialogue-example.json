@@ -1,0 +1,27 @@
+{
+  "fictional": true,
+  "scenarioId": "demo-dialogue",
+  "locale": "fr-CA",
+  "persona": "worried",
+  "facts": [
+    {
+      "id": "f1",
+      "text": "Le personnage ne trouve pas son document fictif."
+    }
+  ],
+  "turns": [
+    {
+      "speaker": "npc",
+      "text": "Bonjour, je ne trouve plus mon document. Est-ce que vous pouvez m'aider?"
+    },
+    {
+      "speaker": "agent",
+      "text": "Bien sûr. Pouvez-vous me préciser de quel document il s'agit?"
+    },
+    {
+      "speaker": "npc",
+      "text": "Je ne suis pas certain. Pouvez-vous me guider?"
+    }
+  ],
+  "verdict": null
+}
