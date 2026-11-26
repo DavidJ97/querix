@@ -1,0 +1,2031 @@
+{
+  "status": "planning",
+  "count": 225,
+  "scenarios": [
+    {
+      "id": "rg-debutant-1",
+      "chapter": "rg",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-debutant-2",
+      "chapter": "rg",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-debutant-3",
+      "chapter": "rg",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-intermediaire-1",
+      "chapter": "rg",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-intermediaire-2",
+      "chapter": "rg",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-intermediaire-3",
+      "chapter": "rg",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-intermediaire-4",
+      "chapter": "rg",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-intermediaire-5",
+      "chapter": "rg",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-avance-1",
+      "chapter": "rg",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-avance-2",
+      "chapter": "rg",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-avance-3",
+      "chapter": "rg",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-avance-4",
+      "chapter": "rg",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-avance-5",
+      "chapter": "rg",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-exception-1",
+      "chapter": "rg",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "rg-exception-2",
+      "chapter": "rg",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-debutant-1",
+      "chapter": "dc",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-debutant-2",
+      "chapter": "dc",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-debutant-3",
+      "chapter": "dc",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-intermediaire-1",
+      "chapter": "dc",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-intermediaire-2",
+      "chapter": "dc",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-intermediaire-3",
+      "chapter": "dc",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-intermediaire-4",
+      "chapter": "dc",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-intermediaire-5",
+      "chapter": "dc",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-avance-1",
+      "chapter": "dc",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-avance-2",
+      "chapter": "dc",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-avance-3",
+      "chapter": "dc",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-avance-4",
+      "chapter": "dc",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-avance-5",
+      "chapter": "dc",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-exception-1",
+      "chapter": "dc",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "dc-exception-2",
+      "chapter": "dc",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-debutant-1",
+      "chapter": "ve",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-debutant-2",
+      "chapter": "ve",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-debutant-3",
+      "chapter": "ve",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-intermediaire-1",
+      "chapter": "ve",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-intermediaire-2",
+      "chapter": "ve",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-intermediaire-3",
+      "chapter": "ve",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-intermediaire-4",
+      "chapter": "ve",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-intermediaire-5",
+      "chapter": "ve",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-avance-1",
+      "chapter": "ve",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-avance-2",
+      "chapter": "ve",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-avance-3",
+      "chapter": "ve",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-avance-4",
+      "chapter": "ve",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-avance-5",
+      "chapter": "ve",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-exception-1",
+      "chapter": "ve",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ve-exception-2",
+      "chapter": "ve",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-debutant-1",
+      "chapter": "va",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-debutant-2",
+      "chapter": "va",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-debutant-3",
+      "chapter": "va",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-intermediaire-1",
+      "chapter": "va",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-intermediaire-2",
+      "chapter": "va",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-intermediaire-3",
+      "chapter": "va",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-intermediaire-4",
+      "chapter": "va",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-intermediaire-5",
+      "chapter": "va",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-avance-1",
+      "chapter": "va",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-avance-2",
+      "chapter": "va",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-avance-3",
+      "chapter": "va",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-avance-4",
+      "chapter": "va",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-avance-5",
+      "chapter": "va",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-exception-1",
+      "chapter": "va",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "va-exception-2",
+      "chapter": "va",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-debutant-1",
+      "chapter": "tc",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-debutant-2",
+      "chapter": "tc",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-debutant-3",
+      "chapter": "tc",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-intermediaire-1",
+      "chapter": "tc",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-intermediaire-2",
+      "chapter": "tc",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-intermediaire-3",
+      "chapter": "tc",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-intermediaire-4",
+      "chapter": "tc",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-intermediaire-5",
+      "chapter": "tc",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-avance-1",
+      "chapter": "tc",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-avance-2",
+      "chapter": "tc",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-avance-3",
+      "chapter": "tc",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-avance-4",
+      "chapter": "tc",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-avance-5",
+      "chapter": "tc",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-exception-1",
+      "chapter": "tc",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tc-exception-2",
+      "chapter": "tc",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-debutant-1",
+      "chapter": "cm",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-debutant-2",
+      "chapter": "cm",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-debutant-3",
+      "chapter": "cm",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-intermediaire-1",
+      "chapter": "cm",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-intermediaire-2",
+      "chapter": "cm",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-intermediaire-3",
+      "chapter": "cm",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-intermediaire-4",
+      "chapter": "cm",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-intermediaire-5",
+      "chapter": "cm",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-avance-1",
+      "chapter": "cm",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-avance-2",
+      "chapter": "cm",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-avance-3",
+      "chapter": "cm",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-avance-4",
+      "chapter": "cm",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-avance-5",
+      "chapter": "cm",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-exception-1",
+      "chapter": "cm",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cm-exception-2",
+      "chapter": "cm",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-debutant-1",
+      "chapter": "vb",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-debutant-2",
+      "chapter": "vb",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-debutant-3",
+      "chapter": "vb",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-intermediaire-1",
+      "chapter": "vb",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-intermediaire-2",
+      "chapter": "vb",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-intermediaire-3",
+      "chapter": "vb",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-intermediaire-4",
+      "chapter": "vb",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-intermediaire-5",
+      "chapter": "vb",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-avance-1",
+      "chapter": "vb",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-avance-2",
+      "chapter": "vb",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-avance-3",
+      "chapter": "vb",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-avance-4",
+      "chapter": "vb",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-avance-5",
+      "chapter": "vb",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-exception-1",
+      "chapter": "vb",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vb-exception-2",
+      "chapter": "vb",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-debutant-1",
+      "chapter": "zo",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-debutant-2",
+      "chapter": "zo",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-debutant-3",
+      "chapter": "zo",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-intermediaire-1",
+      "chapter": "zo",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-intermediaire-2",
+      "chapter": "zo",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-intermediaire-3",
+      "chapter": "zo",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-intermediaire-4",
+      "chapter": "zo",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-intermediaire-5",
+      "chapter": "zo",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-avance-1",
+      "chapter": "zo",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-avance-2",
+      "chapter": "zo",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-avance-3",
+      "chapter": "zo",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-avance-4",
+      "chapter": "zo",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-avance-5",
+      "chapter": "zo",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-exception-1",
+      "chapter": "zo",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "zo-exception-2",
+      "chapter": "zo",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-debutant-1",
+      "chapter": "pr",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-debutant-2",
+      "chapter": "pr",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-debutant-3",
+      "chapter": "pr",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-intermediaire-1",
+      "chapter": "pr",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-intermediaire-2",
+      "chapter": "pr",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-intermediaire-3",
+      "chapter": "pr",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-intermediaire-4",
+      "chapter": "pr",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-intermediaire-5",
+      "chapter": "pr",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-avance-1",
+      "chapter": "pr",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-avance-2",
+      "chapter": "pr",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-avance-3",
+      "chapter": "pr",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-avance-4",
+      "chapter": "pr",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-avance-5",
+      "chapter": "pr",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-exception-1",
+      "chapter": "pr",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "pr-exception-2",
+      "chapter": "pr",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-debutant-1",
+      "chapter": "sa",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-debutant-2",
+      "chapter": "sa",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-debutant-3",
+      "chapter": "sa",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-intermediaire-1",
+      "chapter": "sa",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-intermediaire-2",
+      "chapter": "sa",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-intermediaire-3",
+      "chapter": "sa",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-intermediaire-4",
+      "chapter": "sa",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-intermediaire-5",
+      "chapter": "sa",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-avance-1",
+      "chapter": "sa",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-avance-2",
+      "chapter": "sa",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-avance-3",
+      "chapter": "sa",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-avance-4",
+      "chapter": "sa",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-avance-5",
+      "chapter": "sa",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-exception-1",
+      "chapter": "sa",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "sa-exception-2",
+      "chapter": "sa",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-debutant-1",
+      "chapter": "cv",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-debutant-2",
+      "chapter": "cv",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-debutant-3",
+      "chapter": "cv",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-intermediaire-1",
+      "chapter": "cv",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-intermediaire-2",
+      "chapter": "cv",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-intermediaire-3",
+      "chapter": "cv",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-intermediaire-4",
+      "chapter": "cv",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-intermediaire-5",
+      "chapter": "cv",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-avance-1",
+      "chapter": "cv",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-avance-2",
+      "chapter": "cv",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-avance-3",
+      "chapter": "cv",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-avance-4",
+      "chapter": "cv",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-avance-5",
+      "chapter": "cv",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-exception-1",
+      "chapter": "cv",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cv-exception-2",
+      "chapter": "cv",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-debutant-1",
+      "chapter": "cr",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-debutant-2",
+      "chapter": "cr",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-debutant-3",
+      "chapter": "cr",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-intermediaire-1",
+      "chapter": "cr",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-intermediaire-2",
+      "chapter": "cr",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-intermediaire-3",
+      "chapter": "cr",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-intermediaire-4",
+      "chapter": "cr",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-intermediaire-5",
+      "chapter": "cr",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-avance-1",
+      "chapter": "cr",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-avance-2",
+      "chapter": "cr",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-avance-3",
+      "chapter": "cr",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-avance-4",
+      "chapter": "cr",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-avance-5",
+      "chapter": "cr",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-exception-1",
+      "chapter": "cr",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "cr-exception-2",
+      "chapter": "cr",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-debutant-1",
+      "chapter": "vp",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-debutant-2",
+      "chapter": "vp",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-debutant-3",
+      "chapter": "vp",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-intermediaire-1",
+      "chapter": "vp",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-intermediaire-2",
+      "chapter": "vp",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-intermediaire-3",
+      "chapter": "vp",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-intermediaire-4",
+      "chapter": "vp",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-intermediaire-5",
+      "chapter": "vp",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-avance-1",
+      "chapter": "vp",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-avance-2",
+      "chapter": "vp",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-avance-3",
+      "chapter": "vp",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-avance-4",
+      "chapter": "vp",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-avance-5",
+      "chapter": "vp",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-exception-1",
+      "chapter": "vp",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "vp-exception-2",
+      "chapter": "vp",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-debutant-1",
+      "chapter": "ch",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-debutant-2",
+      "chapter": "ch",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-debutant-3",
+      "chapter": "ch",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-intermediaire-1",
+      "chapter": "ch",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-intermediaire-2",
+      "chapter": "ch",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-intermediaire-3",
+      "chapter": "ch",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-intermediaire-4",
+      "chapter": "ch",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-intermediaire-5",
+      "chapter": "ch",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-avance-1",
+      "chapter": "ch",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-avance-2",
+      "chapter": "ch",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-avance-3",
+      "chapter": "ch",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-avance-4",
+      "chapter": "ch",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-avance-5",
+      "chapter": "ch",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-exception-1",
+      "chapter": "ch",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "ch-exception-2",
+      "chapter": "ch",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-debutant-1",
+      "chapter": "tp",
+      "level": "Débutant",
+      "theme": "Parcours nominal",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-debutant-2",
+      "chapter": "tp",
+      "level": "Débutant",
+      "theme": "Information manquante",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-debutant-3",
+      "chapter": "tp",
+      "level": "Débutant",
+      "theme": "Orientation simple",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-intermediaire-1",
+      "chapter": "tp",
+      "level": "Intermédiaire",
+      "theme": "Deux informations à croiser",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-intermediaire-2",
+      "chapter": "tp",
+      "level": "Intermédiaire",
+      "theme": "Document à vérifier",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-intermediaire-3",
+      "chapter": "tp",
+      "level": "Intermédiaire",
+      "theme": "Chronologie",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-intermediaire-4",
+      "chapter": "tp",
+      "level": "Intermédiaire",
+      "theme": "Choix de destination",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-intermediaire-5",
+      "chapter": "tp",
+      "level": "Intermédiaire",
+      "theme": "Correction d'une réponse",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-avance-1",
+      "chapter": "tp",
+      "level": "Avancé",
+      "theme": "Informations contradictoires",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-avance-2",
+      "chapter": "tp",
+      "level": "Avancé",
+      "theme": "Plusieurs conditions simultanées",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-avance-3",
+      "chapter": "tp",
+      "level": "Avancé",
+      "theme": "Limite de règle",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-avance-4",
+      "chapter": "tp",
+      "level": "Avancé",
+      "theme": "Changement de situation",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-avance-5",
+      "chapter": "tp",
+      "level": "Avancé",
+      "theme": "Parcours sans rendez-vous",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-exception-1",
+      "chapter": "tp",
+      "level": "Exception",
+      "theme": "Règle non résolue",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    },
+    {
+      "id": "tp-exception-2",
+      "chapter": "tp",
+      "level": "Exception",
+      "theme": "Escalade humaine",
+      "status": "draft",
+      "expectedVerdict": null,
+      "source": null
+    }
+  ]
+}
