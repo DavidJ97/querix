@@ -1,0 +1,20 @@
+{
+  "status": "example-only",
+  "environment": "local",
+  "unrealVersion": null,
+  "infrastructureBranch": null,
+  "signallingUrl": "ws://127.0.0.1:8888",
+  "browserUrl": "http://127.0.0.1:80",
+  "targets": {
+    "mobileHeight": 720,
+    "desktopHeight": 1080,
+    "fps": 30,
+    "latencyMs": 100
+  },
+  "remoteAccess": {
+    "enabled": false,
+    "requireHttps": true,
+    "requireAuthentication": true
+  },
+  "patientDataAllowed": false
+}
