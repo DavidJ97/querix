@@ -1,0 +1,53 @@
+{
+  "status": "not-ready",
+  "gates": [
+    {
+      "id": "web-build",
+      "status": "unverified"
+    },
+    {
+      "id": "unreal-build",
+      "status": "unverified"
+    },
+    {
+      "id": "decision-engine",
+      "status": "unverified"
+    },
+    {
+      "id": "pilot-chapter",
+      "status": "unverified"
+    },
+    {
+      "id": "15-playable-chapters",
+      "status": "unverified"
+    },
+    {
+      "id": "225-approved-scenarios",
+      "status": "unverified"
+    },
+    {
+      "id": "mode-parity",
+      "status": "unverified"
+    },
+    {
+      "id": "secure-streaming",
+      "status": "unverified"
+    },
+    {
+      "id": "accessibility",
+      "status": "unverified"
+    },
+    {
+      "id": "security-review",
+      "status": "unverified"
+    },
+    {
+      "id": "institutional-approval",
+      "status": "unverified"
+    },
+    {
+      "id": "deployment-rollback",
+      "status": "unverified"
+    }
+  ]
+}
