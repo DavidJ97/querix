@@ -14,6 +14,7 @@ public:
 protected:
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<USpringArmComponent> CameraBoom;
  UPROPERTY(VisibleAnywhere, BlueprintReadOnly) TObjectPtr<UCameraComponent> FollowCamera;
+ void Interact();
  void Forward(float Value);
  void Right(float Value);
 };
