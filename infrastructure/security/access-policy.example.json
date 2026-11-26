@@ -1,0 +1,21 @@
+{
+  "status": "design-only",
+  "default": "deny",
+  "roles": {
+    "agent": [
+      "protocol:read-authorized",
+      "training:own"
+    ],
+    "supervisor": [
+      "protocol:read-authorized",
+      "training:review-authorized",
+      "content:approve-authorized"
+    ],
+    "technicalAdmin": [
+      "infrastructure:manage"
+    ]
+  },
+  "patientDataAllowed": false,
+  "professionalAnswersPersisted": false,
+  "privilegedMfaRequired": true
+}
