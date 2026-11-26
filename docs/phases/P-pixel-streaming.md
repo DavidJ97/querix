@@ -1,0 +1,5 @@
+# Phase P : Pixel Streaming
+Prototype local avant accès distant. Identifier GPU, encodeur matériel, OS, version UE5 et branche correspondante de Pixel Streaming Infrastructure officielle. Compiler et empaqueter le jeu, activer le plugin compatible, démarrer la signalisation selon sa documentation, puis lancer le jeu avec les paramètres correspondants. Tester depuis le navigateur local puis un second appareil sur le LAN.
+Accès distant : HTTPS, authentification, autorisation par session, pare-feu, isolation réseau, ICE/STUN/TURN selon topologie. Aucun port administratif exposé. Ne pas publier de secrets ou adresse domestique. Ne pas transmettre de données patient.
+Intégration : adaptateur frontend officiel compatible, vidéo/audio et entrées, canal applicatif séparé validé, révisions et reconnexion. Une panne 3D ne bloque pas le mode professionnel.
+Objectifs proposés : 720p mobile, 1080p desktop, 30–60 FPS, latence interactive inférieure à 100 ms si réseau et matériel le permettent. Mesurer débit, latence, GPU, encodeur et sessions simultanées. Aucun serveur configuré ni test exécuté. Issue #16 ouverte. Suite Q : sécurité et confidentialité.
