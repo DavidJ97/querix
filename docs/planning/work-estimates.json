@@ -1,0 +1,73 @@
+{
+  "status": "estimate",
+  "weeklyHours": 20,
+  "tasks": [
+    {
+      "name": "Conception",
+      "minHours": 30,
+      "maxHours": 50
+    },
+    {
+      "name": "Web",
+      "minHours": 60,
+      "maxHours": 100
+    },
+    {
+      "name": "Moteur",
+      "minHours": 50,
+      "maxHours": 80
+    },
+    {
+      "name": "Personnages",
+      "minHours": 60,
+      "maxHours": 100
+    },
+    {
+      "name": "Environnements",
+      "minHours": 100,
+      "maxHours": 180
+    },
+    {
+      "name": "Chapitres",
+      "minHours": 120,
+      "maxHours": 200
+    },
+    {
+      "name": "Scenarios",
+      "minHours": 70,
+      "maxHours": 120
+    },
+    {
+      "name": "IA",
+      "minHours": 30,
+      "maxHours": 60
+    },
+    {
+      "name": "Streaming",
+      "minHours": 25,
+      "maxHours": 40
+    },
+    {
+      "name": "Securite",
+      "minHours": 25,
+      "maxHours": 50
+    },
+    {
+      "name": "Tests",
+      "minHours": 45,
+      "maxHours": 75
+    },
+    {
+      "name": "Deploiement",
+      "minHours": 15,
+      "maxHours": 25
+    }
+  ],
+  "milestones": [
+    "Socle web et moteur",
+    "Tranche verticale fictive",
+    "Streaming et synchronisation",
+    "Extension aux quinze chapitres",
+    "Validation et déploiement"
+  ]
+}
