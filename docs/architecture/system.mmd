@@ -1,0 +1,9 @@
+flowchart TD
+  U[Mobile / Tablette / PC] --> W[PWA React Next.js]
+  W <--> D[Moteur décisionnel TypeScript]
+  W <--> A[API Node.js]
+  A --> D
+  A <--> P[(PostgreSQL)]
+  W <-->|WebRTC| S[Pixel Streaming]
+  S <--> G[Unreal Engine 5]
+  G <-->|Intentions et états validés| A
