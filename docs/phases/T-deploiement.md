@@ -1,0 +1,4 @@
+# Phase T : Déploiement
+Trois environnements : local, staging et production. Hébergement web Next.js géré envisagé, fournisseur non choisi. Déploiement du prototype public uniquement avec données fictives. API et PostgreSQL séparés à développer. Serveur GPU domestique réservé aux tests de formation, accès distant authentifié et chiffré. Aucun contenu institutionnel sans autorisation.
+Pipeline : branche de travail, pull request, tests CI, préproduction, validation humaine, production, surveillance et retour à la version précédente. Verrouiller les dépendances, vérifier la compilation, configurer secrets et HTTPS, vérifier les accès et les sauvegardes avant production.
+Le Dockerfile fourni est un prototype de déploiement web; npm install provisoire en absence de lockfile. Ne pas exposer directement le conteneur sur Internet. Aucun hébergement, DNS, domaine, certificat ou serveur effectivement configuré. Issue #20 ouverte. Suite U : calendrier.
