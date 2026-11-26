@@ -1,0 +1,2 @@
+# Phase Y : Évolution
+Après validation du pilote : enrichir les 15 chapitres, accessibilité, bilinguisme, nouveaux établissements, formation collaborative fictive, outils d'édition et validation des protocoles, déploiement institutionnel autorisé. Prioriser selon bénéfice, risque, coût et résultats mesurés. Intégrations externes uniquement avec autorisation et étude de confidentialité. Pas de promesse de déploiement ou partenariat. Issue #25 ouverte.
