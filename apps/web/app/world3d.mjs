@@ -126,3 +126,31 @@ export function findPath(from, to) {
 }
 
 export const pathLength = (from, path) => path.reduce((s, q, i) => s + Math.hypot(q.x - (i ? path[i - 1].x : from.x), q.z - (i ? path[i - 1].z : from.z)), 0);
+
+// Carte des distances vers une cible, calculée une seule fois (parcours en largeur pondéré sur la grille).
+// La distance affichée devient une simple lecture, au lieu d'une recherche de chemin à chaque image.
+export function distanceField(target) {
+  const goal = nearestStandable(target), field = new Map();
+  if (!goal) return field;
+  const key = q => `${Math.round(q.x / CELL)},${Math.round(q.z / CELL)}`;
+  let frontier = [goal];
+  field.set(key(goal), 0);
+  const D = CELL * Math.SQRT2;
+  while (frontier.length) {
+    const next = [];
+    for (const c of frontier) {
+      const dc = field.get(key(c));
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        const n = {x: c.x + dx * CELL, z: c.z + dz * CELL}, k = key(n), nd = dc + (dx && dz ? D : CELL);
+        if ((field.get(k) ?? Infinity) <= nd + 1e-6 || !canStand(n.x, n.z)) continue;
+        field.set(k, nd); next.push(n);
+      }
+    }
+    frontier = next;
+  }
+  return field;
+}
+export function fieldDistance(field, p) {
+  const v = field.get(`${Math.round(p.x / CELL)},${Math.round(p.z / CELL)}`);
+  return v === undefined ? null : v;
+}

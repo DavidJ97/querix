@@ -38,3 +38,11 @@ test('glissement contre un obstacle', () => {
   const p = moveWithCollisions({x: -4.5, z: 1.8}, 0.2, -0.3);
   assert.ok(p.x > -4.5 && p.z >= 1.6);
 });
+
+test('la carte des distances correspond à la longueur du chemin', async () => {
+  const {distanceField, fieldDistance} = await import('../apps/web/app/world3d.mjs');
+  for (const z of ZONES.slice(0, 2)) {
+    const d = fieldDistance(distanceField(z), START), p = pathLength(START, findPath(START, z));
+    assert.ok(d !== null && Math.abs(d - p) < 2.5, `${z.label}: ${d} vs ${p}`);
+  }
+});

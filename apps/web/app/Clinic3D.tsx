@@ -6,7 +6,7 @@ import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {clone as cloneSkinned} from 'three/examples/jsm/utils/SkeletonUtils.js';
-import {ROOM, START, BOOTHS, ZONES, CHAIR_ROWS, CHAIR_STEP, STANCHIONS, PILLARS, RECEPTION, moveWithCollisions, nearestZone, findPath, pathLength} from './world3d.mjs';
+import {ROOM, START, BOOTHS, ZONES, CHAIR_ROWS, CHAIR_STEP, STANCHIONS, PILLARS, RECEPTION, moveWithCollisions, nearestZone, findPath, distanceField, fieldDistance} from './world3d.mjs';
 
 // Clinique 3D temps réel (Three.js / WebGL) : caméra à la 3e personne, personnage animé,
 // personnel et patients, collisions, guidage au sol, joystick tactile et clavier.
@@ -401,6 +401,9 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     // Boucle de jeu.
     const clock = new THREE.Clock(), dummy = new THREE.Object3D(), camTarget = new THREE.Vector3(), camPos = new THREE.Vector3();
     let raf = 0, distTimer = 0, first = true;
+    // Cartes de distance calculées une fois par poste, en tâche de fond après le premier rendu.
+    const fields: (Map<string, number> | null)[] = ZONES.map(() => null);
+    ZONES.forEach((z, i) => setTimeout(() => { if (!disposed) fields[i] = distanceField(z); }, 300 + i * 150));
     const tick = () => {
       raf = requestAnimationFrame(tick);
       const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
@@ -456,8 +459,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
         distTimer = 0.4;
         optionsRef.current.forEach((_, i) => {
           const el = distRefs.current[i]; if (!el || !ZONES[i]) return;
-          const path = findPath(player.pos, ZONES[i]) as V2[];
-          el.textContent = `${Math.max(0, Math.round(pathLength(player.pos, path)))} m`;
+          const f = fields[i], d = f ? fieldDistance(f, player.pos) : null;
+          el.textContent = d === null ? `${Math.round(Math.hypot(player.pos.x - ZONES[i].x, player.pos.z - ZONES[i].z))} m` : `${Math.round(d)} m`;
         });
       }
       // Chevrons le long du chemin actif, qui défilent vers l'objectif.
