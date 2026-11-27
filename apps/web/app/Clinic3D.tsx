@@ -6,6 +6,12 @@ import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js'
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {clone as cloneSkinned} from 'three/examples/jsm/utils/SkeletonUtils.js';
+import {EXRLoader} from 'three/examples/jsm/loaders/EXRLoader.js';
+import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass.js';
+import {GTAOPass} from 'three/examples/jsm/postprocessing/GTAOPass.js';
+import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import {OutputPass} from 'three/examples/jsm/postprocessing/OutputPass.js';
 import {ROOM, START, BOOTHS, ZONES, CHAIR_ROWS, CHAIR_STEP, STANCHIONS, PILLARS, RECEPTION, moveWithCollisions, nearestZone, findPath, distanceField, fieldDistance} from './world3d.mjs';
 
 // Clinique 3D temps réel (Three.js / WebGL) : caméra à la 3e personne, personnage animé,
@@ -25,25 +31,19 @@ function canvasTexture(w: number, h: number, draw: (g: CanvasRenderingContext2D)
   t.anisotropy = 8;
   return t;
 }
-function tileTexture() {
-  const t = canvasTexture(1024, 1024, g => {
-    const n = 4, s = 1024 / n;
-    for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) {
-      const v = 188 + Math.round((Math.random() - 0.5) * 16);
-      g.fillStyle = `rgb(${v - 4},${v - 1},${v + 6})`;
-      g.fillRect(i * s, j * s, s, s);
-      for (let k = 0; k < 900; k++) {
-        const a = Math.random() * 0.05;
-        g.fillStyle = `rgba(${Math.random() < 0.5 ? '255,255,255' : '90,95,110'},${a})`;
-        g.fillRect(i * s + Math.random() * s, j * s + Math.random() * s, 2 + Math.random() * 3, 2 + Math.random() * 3);
-      }
-    }
-    g.strokeStyle = 'rgba(120,126,138,.55)'; g.lineWidth = 3;
-    for (let i = 0; i <= n; i++) { g.beginPath(); g.moveTo(i * s, 0); g.lineTo(i * s, 1024); g.stroke(); g.beginPath(); g.moveTo(0, i * s); g.lineTo(1024, i * s); g.stroke(); }
-  });
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set((ROOM.maxX - ROOM.minX) / 2.4, (ROOM.maxZ - ROOM.minZ) / 2.4);
-  return t;
+// Textures PBR ambientCG (CC0) : couleur, relief (normal map) et rugosité, répétées à l'échelle réelle.
+type TexSet = {load: (file: string, srgb: boolean, rx: number, ry: number) => THREE.Texture};
+function textureSet(base: string, aniso: number): TexSet {
+  const loader = new THREE.TextureLoader(), cache = new Map<string, THREE.Texture>();
+  return {load(file, srgb, rx, ry) {
+    let src = cache.get(file);
+    if (!src) { src = loader.load(base + 'textures/' + file); cache.set(file, src); }
+    // Le clone partage la même source d'image (chargée une seule fois), avec sa propre répétition.
+    const t = src.clone();
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.anisotropy = aniso;
+    t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    return t;
+  }};
 }
 function textPanel(lines: {text: string; size: number; weight?: number; color?: string}[], w: number, h: number, bg: string, radius = 28) {
   return canvasTexture(w, h, g => {
@@ -70,7 +70,7 @@ function screenTexture(num: number) {
 }
 
 // ---------- Construction de la clinique ----------
-function buildClinic(scene: THREE.Scene, shadows: boolean) {
+function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
   const W = ROOM.maxX - ROOM.minX, D = ROOM.maxZ - ROOM.minZ, H = ROOM.height;
   const mat = (color: string, roughness = 0.6, metalness = 0, extra: THREE.MeshStandardMaterialParameters = {}) =>
     new THREE.MeshStandardMaterial({color, roughness, metalness, ...extra});
@@ -83,19 +83,35 @@ function buildClinic(scene: THREE.Scene, shadows: boolean) {
   const rbox = (w: number, h: number, d: number, r = 0.03) => new RoundedBoxGeometry(w, h, d, 2, r);
 
   // Sol ciré, murs, plafond technique.
-  const floor = add(new THREE.PlaneGeometry(W, D), mat('#ffffff', 0.2, 0, {map: tileTexture(), envMapIntensity: 1.1}), 0, 0, 0, false);
+  // Sol : carrelage 60 cm ciré (8 carreaux par texture = 4,8 m), joints en relief, reflets de l'HDRI.
+  const fr = [W / 4.8, D / 4.8] as const;
+  const floorMat = new THREE.MeshStandardMaterial({color: '#d9dde2', map: tex.load('tile_color.jpg', true, ...fr),
+    normalMap: tex.load('tile_normal.jpg', false, ...fr), normalScale: new THREE.Vector2(0.7, 0.7),
+    roughnessMap: tex.load('tile_rough.jpg', false, ...fr), roughness: 6.5, metalness: 0, envMapIntensity: 0.85});
+  const floor = add(new THREE.PlaneGeometry(W, D), floorMat, 0, 0, 0, false);
   floor.rotation.x = -Math.PI / 2; floor.name = 'floor';
+  // Murs : peinture mate sur plâtre (relief subtil), soubassement en mosaïque dans la zone des postes.
+  const wallMat = (w: number) => new THREE.MeshStandardMaterial({color: '#e2e7ed', roughness: 0.92,
+    normalMap: tex.load('plaster_normal.jpg', false, w / 3, H / 3), normalScale: new THREE.Vector2(0.35, 0.35)});
   const wallG = (w: number) => new THREE.PlaneGeometry(w, H);
-  add(wallG(W), wall, 0, H / 2, ROOM.minZ, false);
-  add(wallG(W), wall, 0, H / 2, ROOM.maxZ, false, Math.PI);
-  add(wallG(D), wall, ROOM.minX, H / 2, 0, false, Math.PI / 2);
-  add(wallG(D), wall, ROOM.maxX, H / 2, 0, false, -Math.PI / 2);
+  add(wallG(W), wallMat(W), 0, H / 2, ROOM.minZ, false);
+  add(wallG(W), wallMat(W), 0, H / 2, ROOM.maxZ, false, Math.PI);
+  add(wallG(D), wallMat(D), ROOM.minX, H / 2, 0, false, Math.PI / 2);
+  add(wallG(D), wallMat(D), ROOM.maxX, H / 2, 0, false, -Math.PI / 2);
+  const mr = [W / 0.6, 1.3 / 0.6] as const;
+  add(new THREE.PlaneGeometry(W, 1.3), new THREE.MeshStandardMaterial({color: '#ffffff', map: tex.load('mosaic_color.jpg', true, ...mr),
+    normalMap: tex.load('mosaic_normal.jpg', false, ...mr), roughnessMap: tex.load('mosaic_rough.jpg', false, ...mr), roughness: 1.2}),
+    0, 0.65, ROOM.minZ + 0.012, false);
+  add(new THREE.BoxGeometry(W, 0.04, 0.03), mat('#c7d0da', 0.4, 0.6), 0, 1.31, ROOM.minZ + 0.02, false);
   // Bandeau bleu Quérix en bas des murs.
   add(new THREE.BoxGeometry(W, 0.12, 0.04), blueMat, 0, 0.06, ROOM.minZ + 0.02, false);
   add(new THREE.BoxGeometry(W, 0.12, 0.04), blueMat, 0, 0.06, ROOM.maxZ - 0.02, false);
   add(new THREE.BoxGeometry(0.04, 0.12, D), blueMat, ROOM.minX + 0.02, 0.06, 0, false);
   add(new THREE.BoxGeometry(0.04, 0.12, D), blueMat, ROOM.maxX - 0.02, 0.06, 0, false);
-  const ceil = add(new THREE.PlaneGeometry(W, D), mat('#5c6672', 0.9), 0, H, 0, false);
+  // Faux plafond en dalles de 60 cm.
+  const cr = [W / 4.8, D / 4.8] as const;
+  const ceil = add(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({color: '#dfe4ea', emissive: '#aab3bf', emissiveIntensity: 0.55,
+    normalMap: tex.load('tile_normal.jpg', false, ...cr), normalScale: new THREE.Vector2(1.2, 1.2), roughness: 0.95, envMapIntensity: 0.25}), 0, H, 0, false);
   ceil.rotation.x = Math.PI / 2;
   const lightMat = new THREE.MeshStandardMaterial({color: '#ffffff', emissive: '#fff6e8', emissiveIntensity: 1.6});
   for (let x = -12; x <= 12; x += 3) for (let z = -7.5; z <= 7.5; z += 3)
@@ -228,17 +244,46 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [near, setNear] = useState(-1);
   const base = (process.env.NEXT_PUBLIC_BASE_PATH || '') + '/game3d/';
+  const joyRef = useRef<HTMLDivElement>(null);
+  const [quality, setQuality] = useState<number | null>(null);
+  const onQuality = useRef((q: number) => setQuality(q));
+  const [flash, setFlash] = useState(0);
+  const [muted, setMuted] = useState(() => { try { return localStorage.getItem('querix.sound') === 'off'; } catch { return false; } });
+  const mutedRef = useRef(muted);
+  useEffect(() => { mutedRef.current = muted; try { localStorage.setItem('querix.sound', muted ? 'off' : 'on'); } catch { /* stockage indisponible */ } }, [muted]);
+
+  // Sons (Kenney, CC0) via Web Audio : débloqués au premier contact, comme l'exigent les navigateurs mobiles.
+  const audio = useRef<{ctx: AudioContext | null; buf: Record<string, AudioBuffer>}>({ctx: null, buf: {}});
+  const unlockAudio = () => {
+    const a = audio.current;
+    if (a.ctx) { if (a.ctx.state === 'suspended') a.ctx.resume(); return; }
+    const AC = window.AudioContext || (window as unknown as {webkitAudioContext: typeof AudioContext}).webkitAudioContext;
+    if (!AC) return;
+    a.ctx = new AC();
+    for (const n of ['step', 'ui', 'confirm', 'level_up'])
+      fetch(base + 'audio/' + n + '.mp3').then(r => r.arrayBuffer()).then(b => a.ctx!.decodeAudioData(b)).then(d => { a.buf[n] = d; }).catch(() => {});
+  };
+  const sfx = (name: string, vol = 0.6, rate = 1) => {
+    const a = audio.current, b = a.buf[name];
+    if (mutedRef.current || !a.ctx || !b) return;
+    const src = a.ctx.createBufferSource(), g = a.ctx.createGain();
+    src.buffer = b; src.playbackRate.value = rate; g.gain.value = vol;
+    src.connect(g).connect(a.ctx.destination); src.start();
+  };
+  const sfxRef = useRef(sfx); sfxRef.current = sfx;
+  const buzz = (ms: number) => { try { navigator.vibrate?.(ms); } catch { /* pas de vibreur */ } };
 
   useEffect(() => { optionsRef.current = options; }, [options]);
 
   useEffect(() => {
     const stage = stageRef.current!;
+    let disposed = false;
     const touch = matchMedia('(pointer: coarse)').matches;
     const shadows = true;
     let renderer: THREE.WebGLRenderer;
     try { renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'}); }
     catch { setStatus('error'); return; }
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, touch ? 1.5 : 2));
+
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.92;
@@ -251,25 +296,55 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     scene.background = new THREE.Color('#b9c4d2');
     scene.fog = new THREE.Fog('#b9c4d2', 20, 38);
     const pmrem = new THREE.PMREMGenerator(renderer);
+    // Éclairage d'ambiance : environnement neutre immédiat, puis HDRI « lobby » (Poly Haven, CC0) dès qu'il est chargé.
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environmentIntensity = 0.45;
-    scene.add(new THREE.HemisphereLight('#eef4ff', '#6f788a', 0.7));
+    scene.environmentIntensity = 0.5;
+    new EXRLoader().load(base + 'env/lobby.exr', hdr => {
+      if (disposed) return;
+      hdr.mapping = THREE.EquirectangularReflectionMapping;
+      const env = pmrem.fromEquirectangular(hdr).texture; hdr.dispose();
+      scene.environment?.dispose(); scene.environment = env; scene.environmentIntensity = 0.8;
+    });
+    scene.add(new THREE.HemisphereLight('#eef4ff', '#6f788a', 0.45));
     const sun = new THREE.DirectionalLight('#fff1de', 1.7);
     sun.position.set(5, 12, 6);
     sun.castShadow = shadows;
     sun.shadow.mapSize.set(touch ? 1024 : 2048, touch ? 1024 : 2048);
+    sun.shadow.radius = 3;
     Object.assign(sun.shadow.camera, {left: -15, right: 15, top: 10, bottom: -10, near: 1, far: 30});
     sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
     scene.add(sun);
-    buildClinic(scene, shadows);
+    buildClinic(scene, shadows, textureSet(base, renderer.capabilities.getMaxAnisotropy()));
 
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 60);
+    // Post-traitement : occlusion ambiante (GTAO), halo des lumières (bloom), tonemapping final.
+    const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: 4}));
+    composer.addPass(new RenderPass(scene, camera));
+    const gtao = new GTAOPass(scene, camera, 1, 1);
+    gtao.blendIntensity = 0.85;
+    gtao.updateGtaoMaterial({radius: 0.45, distanceExponent: 1.4, thickness: 1.2, scale: 1, samples: 12});
+    composer.addPass(gtao);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(1, 1), 0.32, 0.5, 0.92);
+    composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+
+    // Paliers de qualité : 2 = haut (ordinateur), 1 = moyen (téléphone), 0 = bas.
+    // Ajustement automatique : si l'appareil tombe sous ~28 i/s, on descend d'un palier.
+    let tier = touch ? 1 : 2;
     const resize = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
-      renderer.setSize(w, h, false); camera.aspect = w / h;
-      camera.fov = w / h < 1 ? 62 : 52; camera.updateProjectionMatrix();
+      const pr = Math.min(devicePixelRatio || 1, [1, 1.35, 2][tier]);
+      renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
+      composer.setPixelRatio(pr); composer.setSize(w, h);
+      camera.aspect = w / h; camera.fov = w / h < 1 ? 62 : 52; camera.updateProjectionMatrix();
     };
-    resize();
+    const applyTier = () => {
+      gtao.enabled = tier === 2; bloom.enabled = tier >= 1;
+      renderer.shadowMap.type = tier === 0 ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+      resize();
+    };
+    applyTier();
+    onQuality.current(tier);
     const ro = new ResizeObserver(resize); ro.observe(stage);
 
     // Zones : anneau au sol + étiquette flottante.
@@ -308,7 +383,6 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     let camYaw = START.yaw, camYawManual = 0;
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
-    let disposed = false;
     loader.load(base + 'characters/worker.glb', gltf => {
       if (disposed) return;
       const box = new THREE.Box3().setFromObject(gltf.scene), k = 1.75 / (box.max.y - box.min.y);
@@ -400,13 +474,18 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     // Boucle de jeu.
     const clock = new THREE.Clock(), dummy = new THREE.Object3D(), camTarget = new THREE.Vector3(), camPos = new THREE.Vector3();
-    let raf = 0, distTimer = 0, first = true;
+    let raf = 0, distTimer = 0, first = true, frameAvg = 1 / 60, tierClock = 0, stepPhase = -1;
     // Cartes de distance calculées une fois par poste, en tâche de fond après le premier rendu.
     const fields: (Map<string, number> | null)[] = ZONES.map(() => null);
     ZONES.forEach((z, i) => setTimeout(() => { if (!disposed) fields[i] = distanceField(z); }, 300 + i * 150));
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
+      const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), t = clock.elapsedTime;
+      frameAvg += (rawDt - frameAvg) * 0.05;
+      if ((tierClock += rawDt) > 2.5 && t > 4) {
+        tierClock = 0;
+        if (frameAvg > 1 / 28 && tier > 0) { tier--; applyTier(); onQuality.current(tier); }
+      }
       setZoneLabels();
       const inp = input.current;
       // Intention de déplacement (repère caméra) : joystick, puis clavier, puis chemin.
@@ -445,10 +524,21 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if (player.actions.Man_Run) player.actions.Man_Run.timeScale = Math.max(0.7, v / RUN);
       if (player.obj) { player.obj.position.set(player.pos.x, 0, player.pos.z); player.obj.rotation.y = player.yaw; }
       for (const m of mixers) m.update(dt);
+      // Bruits de pas calés sur le cycle de marche (deux appuis par cycle).
+      const act = player.actions[player.current];
+      if (act && player.current !== 'Man_Idle') {
+        const ph = (act.time % act.getClip().duration) / act.getClip().duration;
+        if (stepPhase >= 0 && ((stepPhase < 0.1 && ph >= 0.1) || (stepPhase < 0.6 && ph >= 0.6)))
+          sfxRef.current('step', player.current === 'Man_Run' ? 0.38 : 0.26, 0.9 + Math.random() * 0.2);
+        stepPhase = ph;
+      } else stepPhase = -1;
 
       // Zones, proximité, distances.
       const ni = nearestZone(player.pos, optionsRef.current.length);
-      if (ni !== nearRef.current) { nearRef.current = ni; setNear(ni); }
+      if (ni !== nearRef.current) {
+        if (ni >= 0) { sfxRef.current('ui', 0.5, 1.1); try { navigator.vibrate?.(12); } catch { /* */ } }
+        nearRef.current = ni; setNear(ni);
+      }
       zoneObjs.forEach((o, i) => {
         const pulse = 0.5 + 0.5 * Math.sin(t * 3 + i);
         (o.ring.material as THREE.MeshBasicMaterial).opacity = i === ni ? 1 : 0.55 + 0.3 * pulse;
@@ -487,7 +577,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       camPos.z = Math.max(ROOM.minZ + 0.4, Math.min(ROOM.maxZ - 0.4, camPos.z));
       if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
       camera.lookAt(camTarget.x + Math.sin(camYaw) * 4, 1.15, camTarget.z + Math.cos(camYaw) * 4);
-      renderer.render(scene, camera);
+      composer.render(dt);
     };
     tick();
 
@@ -495,48 +585,65 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       disposed = true; cancelAnimationFrame(raf); ro.disconnect();
       removeEventListener('keydown', kd); removeEventListener('keyup', ku); removeEventListener('blur', blur);
       scene.traverse(o => { const m = o as THREE.Mesh; if (m.geometry) m.geometry.dispose(); });
-      pmrem.dispose(); renderer.dispose(); canvas.remove();
+      composer.dispose(); pmrem.dispose(); renderer.dispose(); canvas.remove();
     };
   }, [base]);
 
   const interact = () => {
     const i = nearRef.current, opts = optionsRef.current;
     if (i < 0 || i >= opts.length) return;
+    sfx('confirm', 0.7); buzz(25); setFlash(f => f + 1);
     onAnswer(opts[i]);
     resetRef.current();
   };
   const interactRef = useRef(interact);
   interactRef.current = interact;
 
-  // Joystick virtuel.
+  // Joystick flottant : il apparaît sous le pouce, n'importe où dans la moitié gauche basse de la scène.
   const joyStart = (e: React.PointerEvent<HTMLDivElement>) => {
-    const el = e.currentTarget; el.setPointerCapture(e.pointerId);
-    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, R = r.width / 2;
+    unlockAudio();
+    const zone = e.currentTarget, joy = joyRef.current, stage = stageRef.current;
+    if (!joy || !stage) return;
+    zone.setPointerCapture(e.pointerId);
+    const sr = stage.getBoundingClientRect(), R = joy.offsetWidth / 2;
+    const cx = Math.max(sr.left + R + 6, Math.min(e.clientX, sr.left + sr.width / 2)), cy = Math.max(sr.top + R + 60, Math.min(e.clientY, sr.bottom - R - 6));
+    joy.style.left = `${cx - sr.left - R}px`; joy.style.top = `${cy - sr.top - R}px`; joy.style.bottom = 'auto';
+    joy.classList.add('active');
     const upd = (ev: PointerEvent | React.PointerEvent) => {
       let dx = (ev.clientX - cx) / R, dy = (ev.clientY - cy) / R;
-      const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; }
-      input.current.joy = {x: dx, y: -dy};
-      if (knobRef.current) knobRef.current.style.transform = `translate(${dx * R * 0.55}px, ${dy * R * 0.55}px)`;
+      const l = Math.hypot(dx, dy);
+      if (l > 1) { dx /= l; dy /= l; }
+      // Zone morte de 12 % puis courbe progressive : précis près du centre, pleine vitesse au bord.
+      const m = Math.min(1, l), k = m < 0.12 ? 0 : ((m - 0.12) / 0.88) ** 1.3 / Math.max(m, 1e-3);
+      input.current.joy = {x: dx * k, y: -dy * k};
+      if (knobRef.current) knobRef.current.style.transform = `translate(${dx * R * 0.6}px, ${dy * R * 0.6}px)`;
     };
     upd(e);
     const move = (ev: PointerEvent) => upd(ev);
     const end = () => {
       input.current.joy = {x: 0, y: 0};
       if (knobRef.current) knobRef.current.style.transform = '';
-      el.removeEventListener('pointermove', move); el.removeEventListener('pointerup', end); el.removeEventListener('pointercancel', end);
+      joy.classList.remove('active'); joy.style.left = ''; joy.style.top = ''; joy.style.bottom = '';
+      zone.removeEventListener('pointermove', move); zone.removeEventListener('pointerup', end); zone.removeEventListener('pointercancel', end);
     };
-    el.addEventListener('pointermove', move); el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+    zone.addEventListener('pointermove', move); zone.addEventListener('pointerup', end); zone.addEventListener('pointercancel', end);
   };
 
   return <section className="c3d">
-    <div ref={stageRef} className="c3d-stage" aria-label="Clinique 3D — déplace-toi jusqu'au poste qui correspond à ta réponse">
+    <div ref={stageRef} className="c3d-stage" onPointerDownCapture={unlockAudio} aria-label="Clinique 3D — déplace-toi jusqu'au poste qui correspond à ta réponse">
       <div className="c3d-chips">
         {options.slice(0, ZONES.length).map((o, i) =>
-          <button key={o} className={'c3d-chip' + (near === i ? ' active' : '')} onClick={() => routeTo.current(i)}>
+          <button key={o} className={'c3d-chip' + (near === i ? ' active' : '')} onClick={() => { sfx('ui', 0.5); buzz(8); routeTo.current(i); }}>
             <span className="pin" aria-hidden>⌖</span><b>{ZONES[i].label} · {o.toUpperCase()}</b><span ref={el => { distRefs.current[i] = el; }} className="dist">…</span>
           </button>)}
       </div>
-      <div className="c3d-joy" onPointerDown={joyStart} aria-label="Joystick de déplacement" role="slider" aria-valuenow={0}><div ref={knobRef} className="knob"/></div>
+      <div className="c3d-tools">
+        {quality !== null && <span className="c3d-q" title="Qualité graphique ajustée automatiquement">{['Qualité basse', 'Qualité moyenne', 'Qualité haute'][quality]}</span>}
+        <button className="c3d-mute" aria-pressed={muted} aria-label={muted ? 'Activer le son' : 'Couper le son'} onClick={() => setMuted(m => !m)}>{muted ? '🔇' : '🔊'}</button>
+      </div>
+      <div className="c3d-joyzone" onPointerDown={joyStart} aria-hidden/>
+      <div ref={joyRef} className="c3d-joy" aria-label="Joystick de déplacement"><div ref={knobRef} className="knob"/></div>
+      {flash > 0 && <div key={flash} className="c3d-flash" aria-hidden/>}
       <div className="c3d-actions">
         {near >= 0 && <button className="c3d-act" onClick={interact}>Interagir<small>{ZONES[near].label} · {options[near]?.toUpperCase()}</small></button>}
         <button className="c3d-run" aria-label="Courir (maintenir)"
