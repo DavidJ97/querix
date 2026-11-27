@@ -5,6 +5,7 @@ import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import {clone as cloneSkinned} from 'three/examples/jsm/utils/SkeletonUtils.js';
 import {EXRLoader} from 'three/examples/jsm/loaders/EXRLoader.js';
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -71,6 +72,7 @@ function screenTexture(num: number) {
 
 // ---------- Construction de la clinique ----------
 function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
+  const statics = new THREE.Group(); scene.add(statics);
   const W = ROOM.maxX - ROOM.minX, D = ROOM.maxZ - ROOM.minZ, H = ROOM.height;
   const mat = (color: string, roughness = 0.6, metalness = 0, extra: THREE.MeshStandardMaterialParameters = {}) =>
     new THREE.MeshStandardMaterial({color, roughness, metalness, ...extra});
@@ -78,7 +80,7 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
   const blueMat = mat(BLUE, 0.45), seatMat = mat('#4b5a6e', 0.55), wood = mat('#c9b79c', 0.6);
   const add = (geo: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, cast = true, ry = 0) => {
     const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = ry;
-    o.castShadow = cast && shadows; o.receiveShadow = shadows; scene.add(o); return o;
+    o.castShadow = cast && shadows; o.receiveShadow = shadows; statics.add(o); return o;
   };
   const rbox = (w: number, h: number, d: number, r = 0.03) => new RoundedBoxGeometry(w, h, d, 2, r);
 
@@ -212,6 +214,35 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
   add(new THREE.PlaneGeometry(2.6, 0.96), new THREE.MeshStandardMaterial({map: obs, roughness: 0.4}), ROOM.maxX - 0.03, 2.6, 2.4, false, -Math.PI / 2);
   const fict = textPanel([{text: 'Clinique de formation — scénario fictif', size: 56, weight: 600, color: '#0a3f8c'}], 1400, 140, 'rgba(255,255,255,0.9)', 18);
   add(new THREE.PlaneGeometry(5, 0.5), new THREE.MeshStandardMaterial({map: fict, transparent: true}), -1.5, 3.55, ROOM.minZ + 0.02, false);
+  mergeStatics(statics);
+}
+
+// Fusion du décor fixe : un seul maillage (donc un seul appel de dessin) par matériau identique.
+function mergeStatics(group: THREE.Group) {
+  group.updateMatrixWorld(true);
+  const key = (m: THREE.MeshStandardMaterial) => [m.type, m.color?.getHexString(), m.emissive?.getHexString(), m.emissiveIntensity, m.roughness, m.metalness,
+    m.map?.uuid, m.normalMap?.uuid, m.roughnessMap?.uuid, m.side, m.transparent, m.opacity, m.flatShading, m.envMapIntensity].join('|');
+  const buckets = new Map<string, {mat: THREE.Material; cast: boolean; geos: THREE.BufferGeometry[]}>();
+  for (const o of [...group.children]) {
+    const m = o as THREE.Mesh;
+    if (!m.isMesh || Array.isArray(m.material) || m.material.type !== 'MeshStandardMaterial') continue;
+    const k = key(m.material as THREE.MeshStandardMaterial) + '|' + m.castShadow;
+    let g = m.geometry.index ? m.geometry.toNonIndexed() : m.geometry.clone();
+    g.applyMatrix4(m.matrixWorld);
+    for (const a of Object.keys(g.attributes)) if (!['position', 'normal', 'uv'].includes(a)) g.deleteAttribute(a);
+    if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+    const b = buckets.get(k) ?? {mat: m.material, cast: m.castShadow, geos: []};
+    b.geos.push(g); buckets.set(k, b);
+    group.remove(m); m.geometry.dispose();
+  }
+  for (const b of buckets.values()) {
+    const merged = mergeGeometries(b.geos);
+    b.geos.forEach(g => g.dispose());
+    if (!merged) continue;
+    const mesh = new THREE.Mesh(merged, b.mat);
+    mesh.castShadow = b.cast; mesh.receiveShadow = true;
+    group.add(mesh);
+  }
 }
 
 // ---------- Personnages ----------
@@ -245,6 +276,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
   const [near, setNear] = useState(-1);
   const base = (process.env.NEXT_PUBLIC_BASE_PATH || '') + '/game3d/';
   const joyRef = useRef<HTMLDivElement>(null);
+  const debugRef = useRef<HTMLSpanElement>(null);
   const [quality, setQuality] = useState<number | null>(null);
   const onQuality = useRef((q: number) => setQuality(q));
   const [flash, setFlash] = useState(0);
@@ -289,6 +321,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     renderer.toneMappingExposure = 0.92;
     renderer.shadowMap.enabled = shadows;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.info.autoReset = false; // compteurs cumulés sur toute l'image (rendu + post-traitement)
     renderer.domElement.className = 'c3d-canvas';
     stage.prepend(renderer.domElement);
 
@@ -480,6 +513,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     ZONES.forEach((z, i) => setTimeout(() => { if (!disposed) fields[i] = distanceField(z); }, 300 + i * 150));
     const tick = () => {
       raf = requestAnimationFrame(tick);
+      renderer.info.reset();
       const rawDt = clock.getDelta(), dt = Math.min(rawDt, 0.05), t = clock.elapsedTime;
       frameAvg += (rawDt - frameAvg) * 0.05;
       if ((tierClock += rawDt) > 2.5 && t > 4) {
@@ -578,6 +612,10 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
       camera.lookAt(camTarget.x + Math.sin(camYaw) * 4, 1.15, camTarget.z + Math.cos(camYaw) * 4);
       composer.render(dt);
+      if (debugRef.current && Math.floor(t) !== Math.floor(t - rawDt)) {
+        const i = renderer.info.render;
+        debugRef.current.textContent = `${Math.round(1 / frameAvg)} i/s · ${i.calls} appels · ${(i.triangles / 1000).toFixed(0)}k tri · palier ${tier}`;
+      }
     };
     tick();
 
@@ -638,6 +676,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
           </button>)}
       </div>
       <div className="c3d-tools">
+        {typeof location !== 'undefined' && location.search.includes('debug') && <span ref={debugRef} className="c3d-q">mesure…</span>}
         {quality !== null && <span className="c3d-q" title="Qualité graphique ajustée automatiquement">{['Qualité basse', 'Qualité moyenne', 'Qualité haute'][quality]}</span>}
         <button className="c3d-mute" aria-pressed={muted} aria-label={muted ? 'Activer le son' : 'Couper le son'} onClick={() => setMuted(m => !m)}>{muted ? '🔇' : '🔊'}</button>
       </div>
