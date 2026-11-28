@@ -394,7 +394,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       const w = stage.clientWidth, h = stage.clientHeight;
       const pr = Math.min(devicePixelRatio || 1, [1, 1.35, 2][tier]);
       renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
-      if (tier > 0) { composer.setPixelRatio(pr); composer.setSize(w, h); }
+      composer.setPixelRatio(pr); composer.setSize(w, h);
       camera.aspect = w / h; camera.fov = w / h < 1 ? 62 : 52; camera.updateProjectionMatrix();
     };
     const applyTier = () => {
@@ -437,7 +437,6 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     // Personnages.
     const mixers: THREE.AnimationMixer[] = [];
-
     const player = {pos: {x: START.x, z: START.z} as V2, yaw: START.yaw, speed: 0, obj: null as THREE.Object3D | null,
       actions: {} as Record<string, THREE.AnimationAction>, current: '', route: [] as V2[], routeZone: -1};
     let camYaw = START.yaw, camYawManual = 0;
@@ -458,13 +457,11 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     };
     const avatar = async (id: string, g: 'f' | 'm', x: number, z: number, ry: number, key: string) => {
       const [a, clip] = await Promise.all([gltf(`${base}avatars/${id}.glb`), anim(g, key)]);
-      const o = new THREE.Group();
-      o.add(a.scene);
+      const o = a.scene;
       o.position.set(x, 0, z); o.rotation.y = ry;
       o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false; } });
       if (!disposed) scene.add(o);
-      const m = new THREE.AnimationMixer(a.scene);
-      mixers.push(m);
+      const m = new THREE.AnimationMixer(o); mixers.push(m);
       const act = m.clipAction(clip); act.play(); act.time = Math.random() * clip.duration;
       return {o, m, act};
     };
@@ -493,13 +490,12 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
         setStatus('ready');
         // Personnel médical assis aux postes, face aux patients.
         const staff: [string, 'f' | 'm'][] = [['staff_f1', 'f'], ['staff_m1', 'm'], ['staff_f2', 'f'], ['staff_m4', 'm']];
-        for (const [i,b] of BOOTHS.entries()) { if (disposed) return; await avatar(staff[i][0], staff[i][1], b.x, b.chairZ + 0.06, 0, 'sit_desk').catch(() => {}); }
+        BOOTHS.forEach((b, i) => { avatar(staff[i][0], staff[i][1], b.x, b.chairZ + 0.06, 0, 'sit_desk').catch(() => {}); });
         // Patients en salle d'attente, tournés vers les postes.
         const patients: [string, 'f' | 'm', number, number][] = [['patient_f1', 'f', 0, 1], ['patient_m6', 'm', 0, 4], ['patient_f12', 'f', 1, 0], ['patient_m8', 'm', 1, 3], ['patient_f4', 'f', 2, 2], ['patient_m2', 'm', 2, 5]];
         for (const [id, g, r, i] of patients) {
           const row = CHAIR_ROWS[r];
-          if (disposed) return;
-          await avatar(id, g, row.x0 + i * CHAIR_STEP, row.z - 0.04, Math.PI, 'sit_wait').catch(() => {});
+          avatar(id, g, row.x0 + i * CHAIR_STEP, row.z - 0.04, Math.PI, 'sit_wait').catch(() => {});
         }
         // Agente d'accueil debout derrière le comptoir.
         avatar('reception', 'f', (RECEPTION.minX + RECEPTION.maxX) / 2, RECEPTION.minZ - 0.6, 0, 'idle').catch(() => {});
@@ -509,8 +505,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     const play = (name: string) => {
       if (player.current === name || !player.actions[name]) return;
       const prev = player.actions[player.current], next = player.actions[name];
-      for (const a of Object.values(player.actions)) if (a !== prev && a !== next) a.stop();
-      next.reset().setEffectiveWeight(1).setEffectiveTimeScale(1).play(); if (prev) next.crossFadeFrom(prev, 0.18, false);
+      next.reset().play(); if (prev) next.crossFadeFrom(prev, 0.25, true);
       player.current = name;
     };
 
@@ -536,7 +531,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if ((k === 'e' || k === 'Enter') && nearRef.current >= 0 && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); interactRef.current(); }
     };
     const ku = (e: KeyboardEvent) => input.current.keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key);
-    const blur = () => { input.current.keys.clear(); input.current.joy = {x:0,y:0}; input.current.run = false; };
+    const blur = () => input.current.keys.clear();
     addEventListener('keydown', kd); addEventListener('keyup', ku); addEventListener('blur', blur);
 
     // Glisser sur la scène : orbite de la caméra. Toucher bref sur le sol : aller à ce point.
@@ -578,7 +573,6 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if ((tierClock += rawDt) > 2.5 && t > 4) {
         tierClock = 0;
         if (frameAvg > 1 / 28 && tier > 0) { tier--; applyTier(); onQuality.current(tier); }
-        
       }
       setZoneLabels();
       const inp = input.current;
@@ -586,7 +580,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       let fx = inp.joy.x, fy = inp.joy.y;
       inp.keys.forEach(k => { const d = keyDir[k]; if (d) { fx += d[0]; fy += d[1]; } });
       const len = Math.hypot(fx, fy);
-      let mvx = 0, mvz = 0, running = inp.run || inp.keys.has('Shift');
+      let mvx = 0, mvz = 0, running = inp.run || inp.keys.has('Shift') || Math.hypot(inp.joy.x, inp.joy.y) > 0.92;
       if (len > 0.05) {
         player.route = []; player.routeZone = -1;
         const n = Math.min(1, len), ux = fx / len, uy = fy / len;
@@ -600,9 +594,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       let moved = 0;
       if (mlen > 0.01) {
         const sp = (running ? RUN : WALK) * Math.min(1, mlen) * dt;
-        let next = player.pos;
-        const steps = Math.max(1, Math.ceil(sp / 0.035));
-        for (let j=0;j<steps;j++) next = moveWithCollisions(next, (mvx / mlen) * sp / steps, (mvz / mlen) * sp / steps);
+        const next = moveWithCollisions(player.pos, (mvx / mlen) * sp, (mvz / mlen) * sp);
         moved = Math.hypot(next.x - player.pos.x, next.z - player.pos.z);
         player.pos = next;
         const targetYaw = Math.atan2(mvx, mvz);
@@ -672,8 +664,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       camPos.x = Math.max(ROOM.minX + 0.4, Math.min(ROOM.maxX - 0.4, camPos.x));
       camPos.z = Math.max(ROOM.minZ + 0.4, Math.min(ROOM.maxZ - 0.4, camPos.z));
       if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
-      camera.lookAt(camTarget.x + Math.sin(camYaw) * 0.65, 1.15, camTarget.z + Math.cos(camYaw) * 0.65);
-      if (tier === 0) renderer.render(scene, camera); else composer.render(dt);
+      camera.lookAt(camTarget.x + Math.sin(camYaw) * 4, 1.15, camTarget.z + Math.cos(camYaw) * 4);
+      composer.render(dt);
       if (debugRef.current && Math.floor(t) !== Math.floor(t - rawDt)) {
         const i = renderer.info.render;
         debugRef.current.textContent = `${Math.round(1 / frameAvg)} i/s · ${i.calls} appels · ${(i.triangles / 1000).toFixed(0)}k tri · palier ${tier}`;
