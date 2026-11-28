@@ -22,19 +22,11 @@ const BOXES: Box[] = [
   {x0: -4.85, x1: -3.75, z0: -3.85, z1: -2.75}, {x0: 3.85, x1: 4.95, z0: 2.85, z1: 3.95},   // plantes
   {x0: -2.5, x1: -1.9, z0: 1.7, z1: 2.3},                                                    // panneau sol mouillé
 ];
-const R = 0.38;
-const NPCS = [{x:-1.65,z:-3.55},{x:1.75,z:-3.55},{x:2.84,z:1.58}];
+const R = 0.3;
 const free = (x: number, z: number) => x - R > ROOM.x0 && x + R < ROOM.x1 && z - R > ROOM.z0 && z + R < ROOM.z1 &&
-  !NPCS.some(n => Math.hypot(x-n.x,z-n.z)<R+0.38) && !BOXES.some(b => x + R > b.x0 && x - R < b.x1 && z + R > b.z0 && z - R < b.z1);
-const move = (p: V2, dx: number, dz: number): V2 => {
-  const steps = Math.max(1, Math.ceil(Math.hypot(dx,dz)/0.035));
-  for(let i=0;i<steps;i++){
-    const x=p.x+dx/steps,z=p.z+dz/steps;
-    if(free(x,p.z)) p={x,z:p.z};
-    if(free(p.x,z)) p={x:p.x,z};
-  }
-  return p;
-};
+  !BOXES.some(b => x + R > b.x0 && x - R < b.x1 && z + R > b.z0 && z - R < b.z1);
+const move = (p: V2, dx: number, dz: number): V2 =>
+  free(p.x + dx, p.z + dz) ? {x: p.x + dx, z: p.z + dz} : free(p.x + dx, p.z) ? {x: p.x + dx, z: p.z} : free(p.x, p.z + dz) ? {x: p.x, z: p.z + dz} : p;
 
 const LIGHTS_SPECULAR_ONLY = THREE.ShaderChunk.lights_fragment_maps.replace(/iblIrradiance \+= getIBLIrradiance\( geometryNormal \);/, '');
 
@@ -51,7 +43,7 @@ export default function DemoScene() {
     const touch = matchMedia('(pointer: coarse)').matches;
     let disposed = false, raf = 0;
     const renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'});
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, touch ? 1 : 1.5));
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, touch ? 1.5 : 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     // Rendu tonal : « neutral » (Khronos PBR Neutral, couleurs fidèles) par défaut ; ?tm=agx&exp=0.8 pour comparer.
     const q = new URLSearchParams(location.search);
@@ -61,8 +53,6 @@ export default function DemoScene() {
     stage.prepend(renderer.domElement);
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#b9cfe8');
-    // Profil qualité optionnel : ajustements des matériaux des avatars.
-    const cinematic = q.get('quality') === 'high';
     const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 40);
     const resize = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
@@ -92,7 +82,7 @@ export default function DemoScene() {
           // Le panorama ne sert qu'aux reflets : la lumière diffuse vient déjà de la lightmap (pas de double éclairage).
           mat.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <lights_fragment_maps>', LIGHTS_SPECULAR_ONLY); };
           mat.customProgramCacheKey = () => 'lightmapped';
-          if (mat.map) mat.map.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+          if (mat.map) mat.map.anisotropy = renderer.capabilities.getMaxAnisotropy();
         }
       });
       if (!disposed) scene.add(g.scene);
@@ -129,7 +119,7 @@ export default function DemoScene() {
     const avatar = async (id: string, g: string, x: number, z: number, ry: number, k: string, shadow = 0.9) => {
       const [a, clip] = await Promise.all([gltf(`${base}avatars/${id}.glb`), anim(g, k)]);
       const o = a.scene; o.position.set(x, 0, z); o.rotation.y = ry;
-      o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.frustumCulled = false; for (const mat of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) { mat.envMapIntensity = cinematic ? 1.2 : 1.6; if (mat.map) mat.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); } } });
+      o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.frustumCulled = false; (m.material as THREE.MeshStandardMaterial).envMapIntensity = 1.6; } });
       if (shadow) shadowOf(o, shadow);
       if (!disposed) scene.add(o);
       const mx = new THREE.AnimationMixer(o); mixers.push(mx);
@@ -167,17 +157,11 @@ export default function DemoScene() {
       player.act[n].reset().play().crossFadeFrom(player.act[player.cur], 0.25, true); player.cur = n;
     };
     const clock = new THREE.Clock(), look = new THREE.Vector3(), camPos = new THREE.Vector3();
-    // Camera boom: prevent the camera from crossing furniture footprints.
-    const cameraClear = (x: number, z: number) => !BOXES.some(b => x > b.x0 - .12 && x < b.x1 + .12 && z > b.z0 - .12 && z < b.z1 + .12);
-    const clearInput = () => { input.current.keys.clear(); input.current.run = false; input.current.joy = {x:0,y:0}; };
-    window.addEventListener('blur', clearInput);
-    let avg = 1 / 60, first = true, tFps = 0, slowFrames = 0;
+    let avg = 1 / 60, first = true, tFps = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
-      const raw = clock.getDelta(), dt = Math.min(raw, 1 / 20);
+      const raw = clock.getDelta(), dt = Math.min(raw, 1 / 30);
       avg += (raw - avg) * 0.05;
-      if(touch && raw > 0.045) slowFrames++; else slowFrames = Math.max(0,slowFrames-1);
-      if(slowFrames > 45 && renderer.getPixelRatio() > 0.75){renderer.setPixelRatio(Math.max(0.75,renderer.getPixelRatio()-0.15));resize();slowFrames=0;}
       const inp = input.current;
       let fx = inp.joy.x, fy = inp.joy.y;
       inp.keys.forEach(k => { const d = keyDir[k]; if (d) { fx += d[0]; fy += d[1]; } });
@@ -186,10 +170,10 @@ export default function DemoScene() {
       if (len > 0.05) {
         const n = Math.min(1, len), ux = fx / len, uy = fy / len;
         const mx = (Math.sin(camYaw) * uy - Math.cos(camYaw) * ux) * n, mz = (Math.cos(camYaw) * uy + Math.sin(camYaw) * ux) * n;
-        const run = inp.run || inp.keys.has('shift');
+        const run = inp.run || inp.keys.has('shift') || len > 0.95;
         const sp = (run ? 3.4 : 1.4) * dt;
         const next = move(player.pos, mx * sp, mz * sp);
-        speed = Math.hypot(next.x - player.pos.x, next.z - player.pos.z) / Math.max(dt, 0.0001);
+        speed = Math.hypot(next.x - player.pos.x, next.z - player.pos.z) / dt;
         player.pos = next;
         let d = Math.atan2(mx, mz) - player.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); player.yaw += d * Math.min(1, dt * 10);
         if (manual <= 0 && uy > -0.3) { let c = player.yaw - camYaw; c = Math.atan2(Math.sin(c), Math.cos(c)); camYaw += c * Math.min(1, dt * 1.5); }
@@ -201,14 +185,10 @@ export default function DemoScene() {
       if (player.obj) { player.obj.position.set(player.pos.x, 0, player.pos.z); player.obj.rotation.y = player.yaw; }
       for (const m of mixers) m.update(dt);
       const dist = camera.aspect < 1 ? 3.6 : 2.9;
-      let boom = dist;
-      for (let d = .35; d <= dist; d += .12) {
-        if (!cameraClear(player.pos.x - Math.sin(camYaw)*d, player.pos.z - Math.cos(camYaw)*d)) { boom = Math.max(.8,d-.18); break; }
-      }
-      camPos.set(player.pos.x - Math.sin(camYaw) * boom, 1.85, player.pos.z - Math.cos(camYaw) * boom);
+      camPos.set(player.pos.x - Math.sin(camYaw) * dist, 1.85, player.pos.z - Math.cos(camYaw) * dist);
       camPos.x = Math.max(ROOM.x0 + 0.1, Math.min(ROOM.x1 - 0.1, camPos.x)); camPos.z = Math.max(ROOM.z0 + 0.1, Math.min(ROOM.z1 + 0.15, camPos.z));
-      if (first || !cameraClear(camera.position.x,camera.position.z) || camera.position.distanceTo(new THREE.Vector3(player.pos.x,1.85,player.pos.z)) < .65) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
-      look.set(player.pos.x + Math.sin(camYaw) * 0.65, 1.15, player.pos.z + Math.cos(camYaw) * 0.65);
+      if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
+      look.set(player.pos.x + Math.sin(camYaw) * 3, 1.2, player.pos.z + Math.cos(camYaw) * 3);
       camera.lookAt(look);
       renderer.render(scene, camera);
       if (fpsRef.current && (tFps += raw) > 1) { tFps = 0; fpsRef.current.textContent = `${Math.round(1 / avg)} i/s · ${renderer.info.render.calls} appels`; }
@@ -217,7 +197,7 @@ export default function DemoScene() {
     return () => {
       disposed = true; cancelAnimationFrame(raf); ro.disconnect();
       removeEventListener('keydown', kd); removeEventListener('keyup', ku); removeEventListener('pointerup', pu);
-      window.removeEventListener('blur', clearInput); pmrem.dispose(); renderer.dispose(); canvas.remove();
+      pmrem.dispose(); renderer.dispose(); canvas.remove();
     };
   }, [base]);
 
