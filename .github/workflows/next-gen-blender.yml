@@ -1,0 +1,28 @@
+name: Next Gen Blender preview
+on:
+  push:
+    branches: [querix-next-gen]
+    paths:
+      - scripts/blender/build_stylized_clinic.py
+      - .github/workflows/next-gen-blender.yml
+  workflow_dispatch:
+jobs:
+  render:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender
+        run: sudo apt-get update && sudo apt-get install -y blender python3-numpy
+      - name: Build and render
+        run: blender -b --factory-startup --python-exit-code 1 --python scripts/blender/build_stylized_clinic.py
+      - name: Verify outputs
+        run: |
+          test -s next-gen-output/clinic.blend
+          test -s next-gen-output/clinic.glb
+          test -s next-gen-output/preview.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: next-gen-clinic
+          path: next-gen-output/
+          if-no-files-found: error
