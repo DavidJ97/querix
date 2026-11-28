@@ -1,7 +1,7 @@
-import bpy, json, pathlib
+import bpy, json, pathlib, os
 from mathutils import Vector
 root=pathlib.Path("apps/web/public/game3d/demo")
-source=root/"clinic_booth.glb"
+source=pathlib.Path(os.environ.get("QUERIX_AUDIT_MODEL", str(root/"clinic_booth.glb"))).resolve()
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=str(source))
 report=[]
