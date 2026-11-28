@@ -390,11 +390,12 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     // Paliers de qualité : 2 = haut (ordinateur), 1 = moyen (téléphone), 0 = bas.
     // Ajustement automatique : si l'appareil tombe sous ~28 i/s, on descend d'un palier.
     let tier = touch ? 0 : 2;
+    let mobileScale = 0.75;
     const resize = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
-      const pr = Math.min(devicePixelRatio || 1, [0.85, 1.15, 1.5][tier]);
+      const pr = Math.min(devicePixelRatio || 1, [mobileScale, 1.15, 1.5][tier]);
       renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
-      composer.setPixelRatio(pr); composer.setSize(w, h);
+      if (tier > 0) { composer.setPixelRatio(pr); composer.setSize(w, h); }
       camera.aspect = w / h; camera.fov = w / h < 1 ? 62 : 52; camera.updateProjectionMatrix();
     };
     const applyTier = () => {
@@ -437,6 +438,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     // Personnages.
     const mixers: THREE.AnimationMixer[] = [];
+
     const player = {pos: {x: START.x, z: START.z} as V2, yaw: START.yaw, speed: 0, obj: null as THREE.Object3D | null,
       actions: {} as Record<string, THREE.AnimationAction>, current: '', route: [] as V2[], routeZone: -1};
     let camYaw = START.yaw, camYawManual = 0;
@@ -462,8 +464,10 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       o.position.set(x, 0, z); o.rotation.y = ry;
       o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false; } });
       if (!disposed) scene.add(o);
-      const m = new THREE.AnimationMixer(a.scene); mixers.push(m);
+      const m = new THREE.AnimationMixer(a.scene);
+      if (!touch || id === 'player') mixers.push(m);
       const act = m.clipAction(clip); act.play(); act.time = Math.random() * clip.duration;
+      if (touch && id !== 'player') { m.update(0); act.paused = true; }
       return {o, m, act};
     };
     // Accessoires photoréalistes Poly Haven (CC0) : plantes, panneau « sol mouillé », horloge, porte-blocs.
@@ -491,12 +495,13 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
         setStatus('ready');
         // Personnel médical assis aux postes, face aux patients.
         const staff: [string, 'f' | 'm'][] = [['staff_f1', 'f'], ['staff_m1', 'm'], ['staff_f2', 'f'], ['staff_m4', 'm']];
-        BOOTHS.forEach((b, i) => { avatar(staff[i][0], staff[i][1], b.x, b.chairZ + 0.06, 0, 'sit_desk').catch(() => {}); });
+        for (const [i,b] of BOOTHS.entries()) { if (disposed) return; await avatar(staff[i][0], staff[i][1], b.x, b.chairZ + 0.06, 0, 'sit_desk').catch(() => {}); }
         // Patients en salle d'attente, tournés vers les postes.
         const patients: [string, 'f' | 'm', number, number][] = [['patient_f1', 'f', 0, 1], ['patient_m6', 'm', 0, 4], ['patient_f12', 'f', 1, 0], ['patient_m8', 'm', 1, 3], ['patient_f4', 'f', 2, 2], ['patient_m2', 'm', 2, 5]];
         for (const [id, g, r, i] of patients) {
           const row = CHAIR_ROWS[r];
-          avatar(id, g, row.x0 + i * CHAIR_STEP, row.z - 0.04, Math.PI, 'sit_wait').catch(() => {});
+          if (disposed) return;
+          await avatar(id, g, row.x0 + i * CHAIR_STEP, row.z - 0.04, Math.PI, 'sit_wait').catch(() => {});
         }
         // Agente d'accueil debout derrière le comptoir.
         avatar('reception', 'f', (RECEPTION.minX + RECEPTION.maxX) / 2, RECEPTION.minZ - 0.6, 0, 'idle').catch(() => {});
@@ -575,6 +580,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if ((tierClock += rawDt) > 2.5 && t > 4) {
         tierClock = 0;
         if (frameAvg > 1 / 28 && tier > 0) { tier--; applyTier(); onQuality.current(tier); }
+        else if (frameAvg > 1 / 28 && tier === 0 && mobileScale > 0.45) { mobileScale = Math.max(0.45, mobileScale - 0.1); resize(); }
       }
       setZoneLabels();
       const inp = input.current;
