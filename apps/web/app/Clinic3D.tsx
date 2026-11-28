@@ -1,12 +1,11 @@
 'use client';
 import {useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
-import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {GLTFLoader, type GLTF} from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {MeshoptDecoder} from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import {RoomEnvironment} from 'three/examples/jsm/environments/RoomEnvironment.js';
 import {RoundedBoxGeometry} from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import {mergeGeometries} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import {clone as cloneSkinned} from 'three/examples/jsm/utils/SkeletonUtils.js';
 import {EXRLoader} from 'three/examples/jsm/loaders/EXRLoader.js';
 import {EffectComposer} from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -19,7 +18,7 @@ import {ROOM, START, BOOTHS, ZONES, CHAIR_ROWS, CHAIR_STEP, STANCHIONS, PILLARS,
 // personnel et patients, collisions, guidage au sol, joystick tactile et clavier.
 
 type V2 = {x: number; z: number};
-const WALK = 1.7, RUN = 3.9, CAM_DIST = 3.3, CAM_PITCH = 0.2, EYE = 1.55;
+const WALK = 1.45, RUN = 3.6, CAM_DIST = 3.3, CAM_PITCH = 0.2, EYE = 1.55;
 const BLUE = '#0b4fa8', QUERIX = '#0a3f8c';
 
 // ---------- Textures générées (canvas) ----------
@@ -298,29 +297,6 @@ function mergeStatics(group: THREE.Group) {
   }
 }
 
-// ---------- Personnages ----------
-type Outfit = Partial<Record<'Shirt' | 'Pants' | 'Skin' | 'Hair' | 'Socks', string>> & {shirtFabric?: string; pantsFabric?: string};
-function dress(root: THREE.Object3D, outfit: Outfit, shadows: boolean, tex: TexSet) {
-  root.traverse(o => {
-    const m = o as THREE.Mesh;
-    if (!m.isMesh) return;
-    m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false;
-    // Échelle : la plus grande dimension du maillage au repos (bras en croix) ≈ 1,75 m.
-    m.geometry.computeBoundingBox();
-    const sz = m.geometry.boundingBox!.getSize(new THREE.Vector3()), unit = 1.75 / Math.max(sz.x, sz.y, sz.z);
-    const mats = (Array.isArray(m.material) ? m.material : [m.material]).map(mt => {
-      const c = (mt as THREE.MeshStandardMaterial).clone();
-      const col = outfit[c.name as 'Shirt'];
-      if (col) c.color.set(col);
-      c.roughness = c.name === 'Skin' ? 0.65 : 0.85;
-      if (c.name === 'Shirt') triplanar(c, tex.fabric(outfit.shirtFabric || 'knit'), 0.26, unit, 0.35);
-      if (c.name === 'Pants') triplanar(c, tex.fabric(outfit.pantsFabric || 'denim'), 0.27, unit, 0.35);
-      return c;
-    });
-    m.material = Array.isArray(m.material) ? mats : mats[0];
-  });
-}
-
 export default function Clinic3D({options, onAnswer}: {options: string[]; onAnswer: (s: string) => void}) {
   const stageRef = useRef<HTMLDivElement>(null);
   const knobRef = useRef<HTMLDivElement>(null);
@@ -475,37 +451,52 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     let camYaw = START.yaw, camYawManual = 0;
     const loader = new GLTFLoader();
     loader.setMeshoptDecoder(MeshoptDecoder);
-    loader.load(base + 'characters/worker.glb', gltf => {
-      if (disposed) return;
-      const box = new THREE.Box3().setFromObject(gltf.scene), k = 1.75 / (box.max.y - box.min.y);
-      const clip = (n: string) => gltf.animations.find(a => a.name.endsWith(n))!;
-      const spawn = (outfit: Outfit, x: number, z: number, ry: number, anim: string, y = 0) => {
-        const o = cloneSkinned(gltf.scene); o.scale.setScalar(k); o.position.set(x, y, z); o.rotation.y = ry;
-        dress(o, outfit, shadows, texSet); scene.add(o);
-        const m = new THREE.AnimationMixer(o); mixers.push(m);
-        const a = m.clipAction(clip(anim)); a.play(); a.time = Math.random() * a.getClip().duration;
-        return {o, m};
-      };
-      // Joueur : sweat marine et jean.
-      const p = spawn({Shirt: '#2a3f74', Pants: '#ffffff', Socks: '#e8ecf2', Hair: '#1a1210', shirtFabric: 'knit', pantsFabric: 'denim'}, START.x, START.z, START.yaw, 'Man_Idle');
-      player.obj = p.o;
-      for (const n of ['Man_Idle', 'Man_Walk', 'Man_Run']) player.actions[n] = p.m.clipAction(clip(n));
-      player.current = 'Man_Idle';
-      // Personnel assis aux postes (blouses), face aux patients.
-      const scrubs = ['#2a8c9c', '#3a6fb8', '#2a8c9c', '#5b8f6a'];
-      BOOTHS.forEach((b, i) => spawn({Shirt: scrubs[i], Pants: scrubs[i], shirtFabric: 'jersey', pantsFabric: 'jersey', Skin: ['#8d5a3b', '#e0b48f', '#c58c63', '#6b4430'][i], Hair: '#1c1410'}, b.x, b.chairZ + 0.05, 0, 'Man_Sitting', 0.02));
-      // Patients en salle d'attente, tournés vers les postes.
-      const seatsTaken = [[0, 1], [0, 4], [1, 0], [1, 3], [1, 6], [2, 2], [2, 5]];
-      const shirts = ['#c44d4d', '#e0a43c', '#4d7cc4', '#6a5acd', '#3a9e6e', '#d16a9e', '#7a8796'];
-      seatsTaken.forEach(([r, s], i) => {
-        const row = CHAIR_ROWS[r];
-        spawn({Shirt: shirts[i], shirtFabric: i % 2 ? 'jersey' : 'knit', Pants: ['#ffffff', '#9aa5b4', '#c9bfb2'][i % 3], Skin: ['#e0b48f', '#8d5a3b', '#c58c63', '#f0c8a8', '#6b4430'][i % 5]},
-          row.x0 + s * CHAIR_STEP, row.z + 0.08, Math.PI, 'Man_Sitting', 0.02);
-      });
-      // Agent debout à l'accueil.
-      spawn({Shirt: '#0a3f8c', Pants: '#3b4a63', shirtFabric: 'jersey', Skin: '#c58c63'}, (RECEPTION.minX + RECEPTION.maxX) / 2, RECEPTION.minZ - 0.6, 0, 'Man_Idle');
-      setStatus('ready');
-    }, undefined, () => { if (!disposed) setStatus('error'); });
+    // Avatars Microsoft Rocketbox (MIT) : maillages et textures réalistes, animations partagées par sexe
+    // (squelette Biped commun). Le joueur se charge en premier ; le reste de la clinique se peuple ensuite.
+    const gltf = (u: string) => new Promise<GLTF>((ok, ko) => loader.load(u, ok, undefined, ko));
+    const clips = new Map<string, Promise<THREE.AnimationClip>>();
+    const anim = (g: 'f' | 'm', key: string) => {
+      const k = g + '_' + key;
+      if (!clips.has(k)) clips.set(k, gltf(`${base}anims/${k}.glb`).then(x => {
+        const c = x.animations[0];
+        c.tracks = c.tracks.filter(t => !/Footsteps|MotionExtraction/.test(t.name)); // os techniques absents des avatars
+        return c;
+      }));
+      return clips.get(k)!;
+    };
+    const avatar = async (id: string, g: 'f' | 'm', x: number, z: number, ry: number, key: string) => {
+      const [a, clip] = await Promise.all([gltf(`${base}avatars/${id}.glb`), anim(g, key)]);
+      const o = a.scene;
+      o.position.set(x, 0, z); o.rotation.y = ry;
+      o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false; } });
+      if (!disposed) scene.add(o);
+      const m = new THREE.AnimationMixer(o); mixers.push(m);
+      const act = m.clipAction(clip); act.play(); act.time = Math.random() * clip.duration;
+      return {o, m, act};
+    };
+    (async () => {
+      try {
+        const p = await avatar('player', 'm', START.x, START.z, START.yaw, 'idle');
+        if (disposed) return;
+        player.obj = p.o;
+        p.act.time = 0;
+        const [walk, run] = await Promise.all([anim('m', 'walk'), anim('m', 'run')]);
+        player.actions = {Man_Idle: p.act, Man_Walk: p.m.clipAction(walk), Man_Run: p.m.clipAction(run)};
+        player.current = 'Man_Idle';
+        setStatus('ready');
+        // Personnel médical assis aux postes, face aux patients.
+        const staff: [string, 'f' | 'm'][] = [['staff_f1', 'f'], ['staff_m1', 'm'], ['staff_f2', 'f'], ['staff_m4', 'm']];
+        BOOTHS.forEach((b, i) => { avatar(staff[i][0], staff[i][1], b.x, b.chairZ + 0.06, 0, 'sit_desk').catch(() => {}); });
+        // Patients en salle d'attente, tournés vers les postes.
+        const patients: [string, 'f' | 'm', number, number][] = [['patient_f1', 'f', 0, 1], ['patient_m6', 'm', 0, 4], ['patient_f12', 'f', 1, 0], ['patient_m8', 'm', 1, 3], ['patient_f4', 'f', 2, 2], ['patient_m2', 'm', 2, 5]];
+        for (const [id, g, r, i] of patients) {
+          const row = CHAIR_ROWS[r];
+          avatar(id, g, row.x0 + i * CHAIR_STEP, row.z - 0.04, Math.PI, 'sit_wait').catch(() => {});
+        }
+        // Agente d'accueil debout derrière le comptoir.
+        avatar('reception', 'f', (RECEPTION.minX + RECEPTION.maxX) / 2, RECEPTION.minZ - 0.6, 0, 'idle').catch(() => {});
+      } catch { if (!disposed) setStatus('error'); }
+    })();
 
     const play = (name: string) => {
       if (player.current === name || !player.actions[name]) return;
