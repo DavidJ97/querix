@@ -34,6 +34,10 @@ export const PILLARS = [[-6.8, -2.8], [4.0, -2.8], [-6.8, 5.6]];
 
 export const RECEPTION = {minX: -13.6, maxX: -9.6, minZ: 2.4, maxZ: 4.4};
 
+// Plantes en pot (x, z, rotation) et panneau « sol mouillé » (x, z).
+export const PLANTS = [[-13.1, -1.7, 0.4], [13.1, -3.9, 2.1], [13.1, 7.1, 4.0]];
+export const WET_SIGN = [2.6, 5.2];
+
 // Obstacles au sol (boîtes alignées sur les axes, marge comprise).
 export function buildObstacles() {
   const boxes = [];
@@ -51,7 +55,8 @@ export function buildObstacles() {
   }
   for (const [x, z] of PILLARS) box(x - 0.4, x + 0.4, z - 0.4, z + 0.4, 'pilier');
   box(RECEPTION.minX, RECEPTION.maxX, RECEPTION.minZ, RECEPTION.maxZ, 'accueil');
-  box(-13.6, -12.6, -2.2, -1.2, 'plante'); box(12.6, 13.6, -4.4, -3.4, 'plante'); box(12.6, 13.6, 6.6, 7.6, 'plante');
+  for (const [x, z] of PLANTS) box(x - 0.55, x + 0.55, z - 0.55, z + 0.55, 'plante');
+  box(WET_SIGN[0] - 0.3, WET_SIGN[0] + 0.3, WET_SIGN[1] - 0.3, WET_SIGN[1] + 0.3, 'panneau');
   return boxes;
 }
 export const OBSTACLES = buildObstacles();

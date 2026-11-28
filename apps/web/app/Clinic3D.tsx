@@ -12,7 +12,7 @@ import {RenderPass} from 'three/examples/jsm/postprocessing/RenderPass.js';
 import {GTAOPass} from 'three/examples/jsm/postprocessing/GTAOPass.js';
 import {UnrealBloomPass} from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from 'three/examples/jsm/postprocessing/OutputPass.js';
-import {ROOM, START, BOOTHS, ZONES, CHAIR_ROWS, CHAIR_STEP, STANCHIONS, PILLARS, RECEPTION, moveWithCollisions, nearestZone, findPath, distanceField, fieldDistance} from './world3d.mjs';
+import {ROOM, START, BOOTHS, ZONES, CHAIR_ROWS, CHAIR_STEP, STANCHIONS, PILLARS, RECEPTION, PLANTS, WET_SIGN, moveWithCollisions, nearestZone, findPath, distanceField, fieldDistance} from './world3d.mjs';
 
 // Clinique 3D temps réel (Three.js / WebGL) : caméra à la 3e personne, personnage animé,
 // personnel et patients, collisions, guidage au sol, joystick tactile et clavier.
@@ -251,15 +251,6 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
 
   // Piliers, plantes, signalétique.
   for (const [x, z] of PILLARS) add(new THREE.BoxGeometry(0.8, H, 0.8), white, x, H / 2, z);
-  const leaf = mat('#3f8f4a', 0.7, 0, {flatShading: true}), leaf2 = mat('#2f7a3b', 0.7, 0, {flatShading: true});
-  for (const [x, z] of [[-13.1, -1.7], [13.1, -3.9], [13.1, 7.1]]) {
-    add(new THREE.CylinderGeometry(0.32, 0.26, 0.6, 20), white, x, 0.3, z);
-    for (let k = 0; k < 7; k++) {
-      const a = (k / 7) * Math.PI * 2, rr = 0.18 + (k % 2) * 0.1;
-      add(new THREE.IcosahedronGeometry(0.28 - (k % 3) * 0.04, 0), k % 2 ? leaf : leaf2, x + Math.cos(a) * rr, 0.85 + (k % 3) * 0.22, z + Math.sin(a) * rr);
-    }
-    add(new THREE.IcosahedronGeometry(0.3, 0), leaf, x, 1.45, z);
-  }
   const vac = textPanel([{text: 'Vaccination', size: 96}, {text: 'Postes 3 – 8  →', size: 72, weight: 500}], 1024, 400, BLUE, 30);
   add(new THREE.PlaneGeometry(1.9, 0.75), new THREE.MeshStandardMaterial({map: vac, roughness: 0.4}), -6.8, 2.5, -2.39, false);
   const obs = textPanel([{text: 'Salle d’observation', size: 84}, {text: '15 minutes', size: 64, weight: 500, color: '#cfe4ff'}], 1024, 380, BLUE, 30);
@@ -474,6 +465,19 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       const act = m.clipAction(clip); act.play(); act.time = Math.random() * clip.duration;
       return {o, m, act};
     };
+    // Accessoires photoréalistes Poly Haven (CC0) : plantes, panneau « sol mouillé », horloge, porte-blocs.
+    const prop = (name: string, x: number, y: number, z: number, ry = 0, k = 1) => gltf(`${base}props/${name}.glb`).then(g => {
+      if (disposed) return;
+      const o = g.scene; o.position.set(x, y, z); o.rotation.y = ry; o.scale.setScalar(k);
+      o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.castShadow = shadows; m.receiveShadow = shadows; } });
+      scene.add(o);
+    }).catch(() => {});
+    for (const [x, z, ry] of PLANTS) prop('potted_plant_02', x, 0, z, ry, 1.45);
+    prop('WetFloorSign_01', WET_SIGN[0], 0, WET_SIGN[1], 0.6);
+    prop('wall_clock', ROOM.maxX - 0.03, 2.85, -6, -Math.PI / 2, 1.3);
+    BOOTHS.forEach((b, i) => prop('clipboard', b.x - 0.75, 0.778, b.deskZ + 0.12, 0.3 - i * 0.2));
+    prop('office_notepads', (RECEPTION.minX + RECEPTION.maxX) / 2 + 0.6, 1.098, (RECEPTION.minZ + RECEPTION.maxZ) / 2, Math.PI / 2, 0.6);
+
     (async () => {
       try {
         const p = await avatar('player', 'm', START.x, START.z, START.yaw, 'idle');
@@ -655,8 +659,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
       // Caméra à la 3e personne, gardée à l'intérieur de la salle.
       camTarget.set(player.pos.x, EYE, player.pos.z);
-      const back = CAM_DIST * Math.cos(CAM_PITCH);
-      camPos.set(player.pos.x - Math.sin(camYaw) * back, EYE + CAM_DIST * Math.sin(CAM_PITCH), player.pos.z - Math.cos(camYaw) * back);
+      const back = (camera.aspect < 1 ? 4.4 : CAM_DIST) * Math.cos(CAM_PITCH);
+      camPos.set(player.pos.x - Math.sin(camYaw) * back, EYE + (camera.aspect < 1 ? 4.4 : CAM_DIST) * Math.sin(CAM_PITCH), player.pos.z - Math.cos(camYaw) * back);
       camPos.x = Math.max(ROOM.minX + 0.4, Math.min(ROOM.maxX - 0.4, camPos.x));
       camPos.z = Math.max(ROOM.minZ + 0.4, Math.min(ROOM.maxZ - 0.4, camPos.z));
       if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
