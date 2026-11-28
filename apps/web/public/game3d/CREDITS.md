@@ -1,14 +1,14 @@
 # Crédits des ressources 3D
 
-## characters/worker.glb
-- Auteur : Quaternius (https://quaternius.com), modèle « Animated Human / Worker ».
-- Licence : CC0 1.0 (domaine public), aucune attribution requise.
-- Source : copie optimisée (meshopt) du paquet npm `@netforge/asset-library-files` 0.2.0,
-  dont le fichier NOTICE indique que les modèles Quaternius retenus sont ceux publiés en CC0
-  (les modèles sous CC-BY sont exclus).
-- Les couleurs (tenue du joueur, blouses du personnel, patients) sont modifiées dans le code.
+## avatars/ et anims/
+- Microsoft Rocketbox Avatar Library (https://github.com/microsoft/Microsoft-Rocketbox), licence MIT,
+  Copyright (c) 2020 Microsoft. Avatars : Male_Adult_17 (joueur), Medical_Female_01/02, Medical_Male_01/04,
+  Female_Adult_01/04/09/12, Male_Adult_02/06/08. Animations : idle/walk/run neutral 01, sit_table_idle_neutral_01,
+  sit_chair_idle_waiting_01 (versions homme et femme).
+- Convertis avec FBX2glTF, textures réduites en WebP, maillages et animations compressés (meshopt) :
+  voir `tools/rocketbox/`.
 
-Tout le reste de la clinique 3D (murs, sol, mobilier, signalétique, éclairage) est généré en code
+Les murs, le mobilier, la signalétique et l'éclairage sont générés en code
 dans `apps/web/app/Clinic3D.tsx`. Aucune donnée réelle de patient ni protocole interne.
 
 ## textures/ (tile_*, mosaic_*, plaster_normal)

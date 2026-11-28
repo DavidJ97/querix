@@ -4,7 +4,7 @@ import {existsSync} from 'node:fs';
 import {START, ZONES, BOOTHS, canStand, findPath, moveWithCollisions, nearestZone, pathLength} from '../apps/web/app/world3d.mjs';
 
 test('le modèle 3D du personnage et ses crédits sont publiés', () => {
-  for (const f of ['characters/worker.glb', 'CREDITS.md']) assert.ok(existsSync(new URL(`../apps/web/public/game3d/${f}`, import.meta.url)), f);
+  for (const f of ['avatars/player.glb', 'avatars/staff_f1.glb', 'anims/m_walk.glb', 'anims/f_sit_desk.glb', 'CREDITS.md']) assert.ok(existsSync(new URL(`../apps/web/public/game3d/${f}`, import.meta.url)), f);
 });
 
 test('départ et zones de réponse praticables', () => {

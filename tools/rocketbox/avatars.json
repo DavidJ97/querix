@@ -1,0 +1,23 @@
+{
+  "avatars": [
+    {"id": "player", "src": "Adults/Male_Adult_17", "size": 1024},
+    {"id": "staff_f1", "src": "Professions/Medical_Female_01", "size": 512},
+    {"id": "staff_m1", "src": "Professions/Medical_Male_01", "size": 512},
+    {"id": "staff_f2", "src": "Professions/Medical_Female_02", "size": 512},
+    {"id": "staff_m4", "src": "Professions/Medical_Male_04", "size": 512},
+    {"id": "reception", "src": "Adults/Female_Adult_09", "size": 512},
+    {"id": "patient_f1", "src": "Adults/Female_Adult_01", "size": 512},
+    {"id": "patient_m6", "src": "Adults/Male_Adult_06", "size": 512},
+    {"id": "patient_f12", "src": "Adults/Female_Adult_12", "size": 512},
+    {"id": "patient_m8", "src": "Adults/Male_Adult_08", "size": 512},
+    {"id": "patient_f4", "src": "Adults/Female_Adult_04", "size": 512},
+    {"id": "patient_m2", "src": "Adults/Male_Adult_02", "size": 512}
+  ],
+  "animations": {
+    "idle": "all_animations_max_motextr_static/{g}_idle_neutral_01",
+    "walk": "all_animations_max_motextr_xy/{g}_walk_neutral_01",
+    "run": "all_animations_max_motextr_xy/{g}_run_neutral_01",
+    "sit_desk": "all_animations_max_motextr_static/{g}_sit_table_idle_neutral_01",
+    "sit_wait": "all_animations_max_motextr_static/{g}_sit_chair_idle_waiting_01"
+  }
+}
