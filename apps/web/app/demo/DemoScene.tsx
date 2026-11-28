@@ -159,6 +159,10 @@ export default function DemoScene() {
       player.act[n].reset().play().crossFadeFrom(player.act[player.cur], 0.25, true); player.cur = n;
     };
     const clock = new THREE.Clock(), look = new THREE.Vector3(), camPos = new THREE.Vector3();
+    // Camera boom: prevent the camera from crossing furniture footprints.
+    const cameraClear = (x: number, z: number) => !BOXES.some(b => x > b.x0 - .12 && x < b.x1 + .12 && z > b.z0 - .12 && z < b.z1 + .12);
+    const clearInput = () => { input.current.keys.clear(); input.current.run = false; input.current.joy = {x:0,y:0}; };
+    window.addEventListener('blur', clearInput);
     let avg = 1 / 60, first = true, tFps = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
@@ -187,7 +191,11 @@ export default function DemoScene() {
       if (player.obj) { player.obj.position.set(player.pos.x, 0, player.pos.z); player.obj.rotation.y = player.yaw; }
       for (const m of mixers) m.update(dt);
       const dist = camera.aspect < 1 ? 3.6 : 2.9;
-      camPos.set(player.pos.x - Math.sin(camYaw) * dist, 1.85, player.pos.z - Math.cos(camYaw) * dist);
+      let boom = dist;
+      for (let d = .35; d <= dist; d += .12) {
+        if (!cameraClear(player.pos.x - Math.sin(camYaw)*d, player.pos.z - Math.cos(camYaw)*d)) { boom = Math.max(.35,d-.18); break; }
+      }
+      camPos.set(player.pos.x - Math.sin(camYaw) * boom, 1.85, player.pos.z - Math.cos(camYaw) * boom);
       camPos.x = Math.max(ROOM.x0 + 0.1, Math.min(ROOM.x1 - 0.1, camPos.x)); camPos.z = Math.max(ROOM.z0 + 0.1, Math.min(ROOM.z1 + 0.15, camPos.z));
       if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
       look.set(player.pos.x + Math.sin(camYaw) * 3, 1.2, player.pos.z + Math.cos(camYaw) * 3);
@@ -199,7 +207,7 @@ export default function DemoScene() {
     return () => {
       disposed = true; cancelAnimationFrame(raf); ro.disconnect();
       removeEventListener('keydown', kd); removeEventListener('keyup', ku); removeEventListener('pointerup', pu);
-      pmrem.dispose(); renderer.dispose(); canvas.remove();
+      window.removeEventListener('blur', clearInput); pmrem.dispose(); renderer.dispose(); canvas.remove();
     };
   }, [base]);
 
