@@ -336,9 +336,9 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     const stage = stageRef.current!;
     let disposed = false;
     const touch = matchMedia('(pointer: coarse)').matches;
-    const shadows = true;
+    const shadows = !touch;
     let renderer: THREE.WebGLRenderer;
-    try { renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'}); }
+    try { renderer = new THREE.WebGLRenderer({antialias: !touch, powerPreference: 'high-performance'}); }
     catch { setStatus('error'); return; }
 
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -377,7 +377,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 60);
     // Post-traitement : occlusion ambiante (GTAO), halo des lumières (bloom), tonemapping final.
-    const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: 4}));
+    const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: touch ? 0 : 4}));
     composer.addPass(new RenderPass(scene, camera));
     const gtao = new GTAOPass(scene, camera, 1, 1);
     gtao.blendIntensity = 0.85;
@@ -389,10 +389,10 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     // Paliers de qualité : 2 = haut (ordinateur), 1 = moyen (téléphone), 0 = bas.
     // Ajustement automatique : si l'appareil tombe sous ~28 i/s, on descend d'un palier.
-    let tier = touch ? 1 : 2;
+    let tier = touch ? 0 : 2;
     const resize = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
-      const pr = Math.min(devicePixelRatio || 1, [1, 1.35, 2][tier]);
+      const pr = Math.min(devicePixelRatio || 1, [0.85, 1.15, 1.5][tier]);
       renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
       composer.setPixelRatio(pr); composer.setSize(w, h);
       camera.aspect = w / h; camera.fov = w / h < 1 ? 62 : 52; camera.updateProjectionMatrix();
@@ -457,11 +457,12 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     };
     const avatar = async (id: string, g: 'f' | 'm', x: number, z: number, ry: number, key: string) => {
       const [a, clip] = await Promise.all([gltf(`${base}avatars/${id}.glb`), anim(g, key)]);
-      const o = a.scene;
+      const o = new THREE.Group();
+      o.add(a.scene);
       o.position.set(x, 0, z); o.rotation.y = ry;
       o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false; } });
       if (!disposed) scene.add(o);
-      const m = new THREE.AnimationMixer(o); mixers.push(m);
+      const m = new THREE.AnimationMixer(a.scene); mixers.push(m);
       const act = m.clipAction(clip); act.play(); act.time = Math.random() * clip.duration;
       return {o, m, act};
     };
@@ -505,7 +506,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     const play = (name: string) => {
       if (player.current === name || !player.actions[name]) return;
       const prev = player.actions[player.current], next = player.actions[name];
-      next.reset().play(); if (prev) next.crossFadeFrom(prev, 0.25, true);
+      for (const a of Object.values(player.actions)) if (a !== prev && a !== next) a.stop();
+      next.reset().setEffectiveWeight(1).setEffectiveTimeScale(1).play(); if (prev) next.crossFadeFrom(prev, 0.18, false);
       player.current = name;
     };
 
@@ -531,7 +533,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if ((k === 'e' || k === 'Enter') && nearRef.current >= 0 && !(e.target instanceof HTMLButtonElement)) { e.preventDefault(); interactRef.current(); }
     };
     const ku = (e: KeyboardEvent) => input.current.keys.delete(e.key.length === 1 ? e.key.toLowerCase() : e.key);
-    const blur = () => input.current.keys.clear();
+    const blur = () => { input.current.keys.clear(); input.current.joy = {x:0,y:0}; input.current.run = false; };
     addEventListener('keydown', kd); addEventListener('keyup', ku); addEventListener('blur', blur);
 
     // Glisser sur la scène : orbite de la caméra. Toucher bref sur le sol : aller à ce point.
@@ -580,7 +582,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       let fx = inp.joy.x, fy = inp.joy.y;
       inp.keys.forEach(k => { const d = keyDir[k]; if (d) { fx += d[0]; fy += d[1]; } });
       const len = Math.hypot(fx, fy);
-      let mvx = 0, mvz = 0, running = inp.run || inp.keys.has('Shift') || Math.hypot(inp.joy.x, inp.joy.y) > 0.92;
+      let mvx = 0, mvz = 0, running = inp.run || inp.keys.has('Shift');
       if (len > 0.05) {
         player.route = []; player.routeZone = -1;
         const n = Math.min(1, len), ux = fx / len, uy = fy / len;
@@ -594,7 +596,9 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       let moved = 0;
       if (mlen > 0.01) {
         const sp = (running ? RUN : WALK) * Math.min(1, mlen) * dt;
-        const next = moveWithCollisions(player.pos, (mvx / mlen) * sp, (mvz / mlen) * sp);
+        let next = player.pos;
+        const steps = Math.max(1, Math.ceil(sp / 0.035));
+        for (let j=0;j<steps;j++) next = moveWithCollisions(next, (mvx / mlen) * sp / steps, (mvz / mlen) * sp / steps);
         moved = Math.hypot(next.x - player.pos.x, next.z - player.pos.z);
         player.pos = next;
         const targetYaw = Math.atan2(mvx, mvz);
@@ -664,8 +668,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       camPos.x = Math.max(ROOM.minX + 0.4, Math.min(ROOM.maxX - 0.4, camPos.x));
       camPos.z = Math.max(ROOM.minZ + 0.4, Math.min(ROOM.maxZ - 0.4, camPos.z));
       if (first) { camera.position.copy(camPos); first = false; } else camera.position.lerp(camPos, Math.min(1, dt * 8));
-      camera.lookAt(camTarget.x + Math.sin(camYaw) * 4, 1.15, camTarget.z + Math.cos(camYaw) * 4);
-      composer.render(dt);
+      camera.lookAt(camTarget.x + Math.sin(camYaw) * 0.65, 1.15, camTarget.z + Math.cos(camYaw) * 0.65);
+      if (tier === 0) renderer.render(scene, camera); else composer.render(dt);
       if (debugRef.current && Math.floor(t) !== Math.floor(t - rawDt)) {
         const i = renderer.info.render;
         debugRef.current.textContent = `${Math.round(1 / frameAvg)} i/s · ${i.calls} appels · ${(i.triangles / 1000).toFixed(0)}k tri · palier ${tier}`;
