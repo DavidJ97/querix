@@ -22,8 +22,17 @@ jobs:
           blender --version
       - name: Verify Blender Python dependencies
         run: /usr/bin/blender -b --python-exit-code 1 --python-expr "import sys, numpy; print(sys.version); print(numpy.__version__)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Decode Meshopt for Blender
+        run: |
+          mkdir -p blender-audit
+          npx --yes --package=@gltf-transform/cli@4.2.1 gltf-transform decompress apps/web/public/game3d/demo/clinic_booth.glb blender-audit/clinic-decoded.glb
       - name: Inspect clinic geometry
         run: blender -b --python-exit-code 1 --python scripts/blender/audit_clinic.py
+        env:
+          QUERIX_AUDIT_MODEL: blender-audit/clinic-decoded.glb
       - uses: actions/upload-artifact@v4
         with:
           name: blender-geometry-audit
