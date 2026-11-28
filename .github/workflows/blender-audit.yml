@@ -18,8 +18,10 @@ jobs:
       - name: Install Blender
         run: |
           sudo apt-get update
-          sudo apt-get install -y blender
+          sudo apt-get install -y blender python3-numpy
           blender --version
+      - name: Verify Blender Python dependencies
+        run: /usr/bin/blender -b --python-exit-code 1 --python-expr "import sys, numpy; print(sys.version); print(numpy.__version__)"
       - name: Inspect clinic geometry
         run: blender -b --python-exit-code 1 --python scripts/blender/audit_clinic.py
       - uses: actions/upload-artifact@v4
