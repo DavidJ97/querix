@@ -1,0 +1,13 @@
+import {NodeIO} from '@gltf-transform/core';
+import {ALL_EXTENSIONS} from '@gltf-transform/extensions';
+import {prune, dedup, textureCompress, meshopt} from '@gltf-transform/functions';
+import {MeshoptEncoder} from 'meshoptimizer';
+import sharp from 'sharp';
+await MeshoptEncoder.ready;
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({'meshopt.encoder': MeshoptEncoder});
+const [src, dst] = process.argv.slice(2);
+const doc = await io.read(src);
+await doc.transform(dedup(), textureCompress({encoder: sharp, targetFormat: 'webp', resize: [1024, 1024], quality: 85}), prune({keepAttributes: true}), meshopt({encoder: MeshoptEncoder, level: 'medium'}));
+await io.write(dst, doc);
+const r = doc.getRoot();
+console.log('meshes', r.listMeshes().length, 'prims', r.listMeshes().reduce((s, m) => s + m.listPrimitives().length, 0), 'materials', r.listMaterials().length, 'textures', r.listTextures().length);

@@ -34,3 +34,8 @@ dans `apps/web/app/Clinic3D.tsx`. Aucune donnée réelle de patient ni protocole
 ## props/ (potted_plant_02, WetFloorSign_01, wall_clock, clipboard, office_notepads)
 - Modèles Poly Haven (https://polyhaven.com/models), licence CC0 1.0, glTF 1K téléchargé depuis l'API officielle.
 - Simplifiés (meshopt), textures WebP 512 px : voir `tools/rocketbox/polyhaven_models.mjs`.
+
+## demo/ (clinic_booth.glb, lightmap.webp, env.exr)
+- Décor modélisé en Python dans Blender 5.3 (`tools/blender/clinic_booth.py`), éclairage calculé par Cycles :
+  lightmap précalculée (débruitée par OpenImageDenoise) et panorama d'environnement de la même scène.
+- Textures : ambientCG et Poly Haven (CC0) ; signalétique générée. Aucune donnée réelle.
