@@ -336,9 +336,9 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     const stage = stageRef.current!;
     let disposed = false;
     const touch = matchMedia('(pointer: coarse)').matches;
-    const shadows = !touch;
+    const shadows = true;
     let renderer: THREE.WebGLRenderer;
-    try { renderer = new THREE.WebGLRenderer({antialias: !touch, powerPreference: 'high-performance'}); }
+    try { renderer = new THREE.WebGLRenderer({antialias: true, powerPreference: 'high-performance'}); }
     catch { setStatus('error'); return; }
 
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -377,7 +377,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 60);
     // Post-traitement : occlusion ambiante (GTAO), halo des lumières (bloom), tonemapping final.
-    const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: touch ? 0 : 4}));
+    const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: 4}));
     composer.addPass(new RenderPass(scene, camera));
     const gtao = new GTAOPass(scene, camera, 1, 1);
     gtao.blendIntensity = 0.85;
@@ -389,11 +389,10 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
 
     // Paliers de qualité : 2 = haut (ordinateur), 1 = moyen (téléphone), 0 = bas.
     // Ajustement automatique : si l'appareil tombe sous ~28 i/s, on descend d'un palier.
-    let tier = touch ? 0 : 2;
-    let mobileScale = 0.75;
+    let tier = touch ? 1 : 2;
     const resize = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
-      const pr = Math.min(devicePixelRatio || 1, [mobileScale, 1.15, 1.5][tier]);
+      const pr = Math.min(devicePixelRatio || 1, [1, 1.35, 2][tier]);
       renderer.setPixelRatio(pr); renderer.setSize(w, h, false);
       if (tier > 0) { composer.setPixelRatio(pr); composer.setSize(w, h); }
       camera.aspect = w / h; camera.fov = w / h < 1 ? 62 : 52; camera.updateProjectionMatrix();
@@ -465,9 +464,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false; } });
       if (!disposed) scene.add(o);
       const m = new THREE.AnimationMixer(a.scene);
-      if (!touch || id === 'player') mixers.push(m);
+      mixers.push(m);
       const act = m.clipAction(clip); act.play(); act.time = Math.random() * clip.duration;
-      if (touch && id !== 'player') { m.update(0); act.paused = true; }
       return {o, m, act};
     };
     // Accessoires photoréalistes Poly Haven (CC0) : plantes, panneau « sol mouillé », horloge, porte-blocs.
@@ -580,7 +578,7 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       if ((tierClock += rawDt) > 2.5 && t > 4) {
         tierClock = 0;
         if (frameAvg > 1 / 28 && tier > 0) { tier--; applyTier(); onQuality.current(tier); }
-        else if (frameAvg > 1 / 28 && tier === 0 && mobileScale > 0.45) { mobileScale = Math.max(0.45, mobileScale - 0.1); resize(); }
+        
       }
       setZoneLabels();
       const inp = input.current;
