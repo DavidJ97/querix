@@ -23,3 +23,10 @@ dans `apps/web/app/Clinic3D.tsx`. Aucune donnée réelle de patient ni protocole
 ## audio/ (step, ui, confirm, level_up)
 - Packs sonores Kenney (Impact Sounds, Interface Sounds, RPG Audio…), licence CC0 1.0,
   via le paquet npm `@netforge/asset-library-files` 0.2.0 ; convertis en MP3 mono.
+
+## textures/ (knit_*, jersey_*, denim_*, linen_*, leather_*, veneer_*)
+- Textures Poly Haven (https://polyhaven.com), licence CC0 1.0, téléchargées depuis l'API officielle :
+  `jogging_melange` → knit, `cotton_jersey` → jersey, `denim_fabric_04` → denim, `rough_linen` → linen,
+  `leather_white` → leather, `okoume_veneer` → veneer.
+- Réduites en 512 px ; knit, jersey et leather converties en niveaux de gris pour être teintées dans le code.
+- Plaquées par projection triplanaire (`Clinic3D.tsx`, fonction `triplanar`) : vêtements, rideaux, assises, façades de bureau.
