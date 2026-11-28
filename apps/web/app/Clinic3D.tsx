@@ -33,10 +33,22 @@ function canvasTexture(w: number, h: number, draw: (g: CanvasRenderingContext2D)
   return t;
 }
 // Textures PBR ambientCG (CC0) : couleur, relief (normal map) et rugosité, répétées à l'échelle réelle.
-type TexSet = {load: (file: string, srgb: boolean, rx: number, ry: number) => THREE.Texture};
+type TexSet = {load: (file: string, srgb: boolean, rx: number, ry: number) => THREE.Texture; fabric: (name: string) => Fabric};
+type Fabric = {color: THREE.Texture; rough: THREE.Texture};
 function textureSet(base: string, aniso: number): TexSet {
   const loader = new THREE.TextureLoader(), cache = new Map<string, THREE.Texture>();
-  return {load(file, srgb, rx, ry) {
+  const fabrics = new Map<string, Fabric>();
+  const raw = (file: string, srgb: boolean) => {
+    const t = loader.load(base + 'textures/' + file);
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = aniso;
+    t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    return t;
+  };
+  return {fabric(name) {
+    let f = fabrics.get(name);
+    if (!f) { f = {color: raw(name + '_color.jpg', true), rough: raw(name + '_rough.jpg', false)}; fabrics.set(name, f); }
+    return f;
+  }, load(file, srgb, rx, ry) {
     let src = cache.get(file);
     if (!src) { src = loader.load(base + 'textures/' + file); cache.set(file, src); }
     // Le clone partage la même source d'image (chargée une seule fois), avec sa propre répétition.
@@ -70,6 +82,43 @@ function screenTexture(num: number) {
   });
 }
 
+// ---------- Textures plaquées par projection triplanaire ----------
+// Les personnages n'ont pas de coordonnées UV : la texture est projetée selon les trois axes, dans l'espace
+// de l'objet (pose de repos), donc elle reste collée au corps pendant l'animation. Le même shader habille
+// le mobilier fusionné (espace monde, en mètres) : échelle réelle et constante quelle que soit la taille.
+// Le relief vient de la carte de rugosité (bump calculé en espace écran), la rugosité module le reflet.
+function triplanar(mat: THREE.MeshStandardMaterial, f: Fabric, metersPerRepeat: number, metersPerUnit = 1, bump = 1) {
+  const uniforms = {tColor: {value: f.color}, tRough: {value: f.rough}, tScale: {value: metersPerUnit / metersPerRepeat}, tBump: {value: bump}};
+  mat.userData.tri = `${f.color.uuid}|${metersPerRepeat}|${metersPerUnit}|${bump}`;
+  mat.customProgramCacheKey = () => 'triplanar';
+  mat.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, uniforms);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vTriPos;\nvarying vec3 vTriNrm;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvTriPos = position;\nvTriNrm = normal;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', `#include <common>
+uniform sampler2D tColor; uniform sampler2D tRough; uniform float tScale; uniform float tBump;
+varying vec3 vTriPos; varying vec3 vTriNrm;
+vec4 triSample(sampler2D t) {
+  vec3 w = pow(abs(normalize(vTriNrm)), vec3(4.0)); w /= (w.x + w.y + w.z);
+  vec3 p = vTriPos * tScale;
+  return texture2D(t, p.zy) * w.x + texture2D(t, p.xz) * w.y + texture2D(t, p.xy) * w.z;
+}`)
+      .replace('#include <map_fragment>', '#include <map_fragment>\nvec4 triC = triSample(tColor);\ndiffuseColor.rgb *= triC.rgb;\nfloat triR = triSample(tRough).r;')
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor * (0.45 + triR * 0.75), 0.04, 1.0);')
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+{
+  vec3 dpx = dFdx(-vViewPosition), dpy = dFdy(-vViewPosition);
+  vec2 dh = vec2(dFdx(triR), dFdy(triR)) * tBump;
+  vec3 r1 = cross(dpy, normal), r2 = cross(normal, dpx);
+  float det = dot(dpx, r1) * faceDirection;
+  normal = normalize(abs(det) * normal - sign(det) * (dh.x * r1 + dh.y * r2));
+}`);
+  };
+  return mat;
+}
+
 // ---------- Construction de la clinique ----------
 function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
   const statics = new THREE.Group(); scene.add(statics);
@@ -77,7 +126,11 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
   const mat = (color: string, roughness = 0.6, metalness = 0, extra: THREE.MeshStandardMaterialParameters = {}) =>
     new THREE.MeshStandardMaterial({color, roughness, metalness, ...extra});
   const white = mat('#f3f5f7', 0.55), wall = mat('#dfe5ec', 0.9), metal = mat('#b9c1cb', 0.3, 0.85), dark = mat('#2a3340', 0.5, 0.2);
-  const blueMat = mat(BLUE, 0.45), seatMat = mat('#4b5a6e', 0.55), wood = mat('#c9b79c', 0.6);
+  const blueMat = mat(BLUE, 0.45);
+  // Matières textiles et bois (Poly Haven, CC0) plaquées en triplanaire, à l'échelle réelle.
+  const seatMat = triplanar(mat('#6a7a90', 0.7), tex.fabric('leather'), 0.3, 1, 0.25);
+  const wood = triplanar(mat('#ffffff', 0.55), tex.fabric('veneer'), 1.0, 1, 0);
+  const staffSeat = triplanar(mat('#2b3d5c', 0.7), tex.fabric('leather'), 0.3, 1, 0.25);
   const add = (geo: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, cast = true, ry = 0) => {
     const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = ry;
     o.castShadow = cast && shadows; o.receiveShadow = shadows; statics.add(o); return o;
@@ -130,7 +183,7 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
   }
 
   // Postes de vaccination : bureau, écran, chaise, rideaux, numéro suspendu.
-  const curtainMat = mat('#3e7fd6', 0.85, 0, {side: THREE.DoubleSide});
+  const curtainMat = triplanar(mat('#dbe8ff', 0.9, 0, {side: THREE.DoubleSide}), tex.fabric('linen'), 0.5, 1, 0.12);
   const curtainGeo = (() => {
     const g = new THREE.PlaneGeometry(3.3, 2.1, 60, 1), p = g.attributes.position;
     for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 9) * 0.05);
@@ -151,8 +204,8 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
     add(new THREE.BoxGeometry(0.42, 0.02, 0.14), dark, b.x + 0.2, 0.785, b.deskZ + 0.05);
     add(rbox(0.25, 0.04, 0.3, 0.01), mat('#e7eef8'), b.x - 0.6, 0.79, b.deskZ + 0.05);
     // chaise du personnel
-    add(rbox(0.5, 0.08, 0.48), mat('#22324a', 0.6), b.x, 0.48, b.chairZ);
-    add(rbox(0.48, 0.55, 0.06), mat('#22324a', 0.6), b.x, 0.85, b.chairZ - 0.24);
+    add(rbox(0.5, 0.08, 0.48), staffSeat, b.x, 0.48, b.chairZ);
+    add(rbox(0.48, 0.55, 0.06), staffSeat, b.x, 0.85, b.chairZ - 0.24);
     add(new THREE.CylinderGeometry(0.03, 0.03, 0.42, 8), metal, b.x, 0.23, b.chairZ);
     // numéro suspendu
     const sign = textPanel([{text: String(b.num), size: 190, weight: 800, color: '#ffffff'}], 256, 256, '#d9a51c', 22);
@@ -221,7 +274,7 @@ function buildClinic(scene: THREE.Scene, shadows: boolean, tex: TexSet) {
 function mergeStatics(group: THREE.Group) {
   group.updateMatrixWorld(true);
   const key = (m: THREE.MeshStandardMaterial) => [m.type, m.color?.getHexString(), m.emissive?.getHexString(), m.emissiveIntensity, m.roughness, m.metalness,
-    m.map?.uuid, m.normalMap?.uuid, m.roughnessMap?.uuid, m.side, m.transparent, m.opacity, m.flatShading, m.envMapIntensity].join('|');
+    m.map?.uuid, m.normalMap?.uuid, m.roughnessMap?.uuid, m.side, m.transparent, m.opacity, m.flatShading, m.envMapIntensity, m.userData.tri].join('|');
   const buckets = new Map<string, {mat: THREE.Material; cast: boolean; geos: THREE.BufferGeometry[]}>();
   for (const o of [...group.children]) {
     const m = o as THREE.Mesh;
@@ -246,17 +299,22 @@ function mergeStatics(group: THREE.Group) {
 }
 
 // ---------- Personnages ----------
-type Outfit = Partial<Record<'Shirt' | 'Pants' | 'Skin' | 'Hair' | 'Socks', string>>;
-function dress(root: THREE.Object3D, outfit: Outfit, shadows: boolean) {
+type Outfit = Partial<Record<'Shirt' | 'Pants' | 'Skin' | 'Hair' | 'Socks', string>> & {shirtFabric?: string; pantsFabric?: string};
+function dress(root: THREE.Object3D, outfit: Outfit, shadows: boolean, tex: TexSet) {
   root.traverse(o => {
     const m = o as THREE.Mesh;
     if (!m.isMesh) return;
     m.castShadow = shadows; m.receiveShadow = false; m.frustumCulled = false;
+    // Échelle : la plus grande dimension du maillage au repos (bras en croix) ≈ 1,75 m.
+    m.geometry.computeBoundingBox();
+    const sz = m.geometry.boundingBox!.getSize(new THREE.Vector3()), unit = 1.75 / Math.max(sz.x, sz.y, sz.z);
     const mats = (Array.isArray(m.material) ? m.material : [m.material]).map(mt => {
       const c = (mt as THREE.MeshStandardMaterial).clone();
-      const col = outfit[c.name as keyof Outfit];
+      const col = outfit[c.name as 'Shirt'];
       if (col) c.color.set(col);
-      c.roughness = c.name === 'Skin' ? 0.65 : 0.8;
+      c.roughness = c.name === 'Skin' ? 0.65 : 0.85;
+      if (c.name === 'Shirt') triplanar(c, tex.fabric(outfit.shirtFabric || 'knit'), 0.26, unit, 0.35);
+      if (c.name === 'Pants') triplanar(c, tex.fabric(outfit.pantsFabric || 'denim'), 0.27, unit, 0.35);
       return c;
     });
     m.material = Array.isArray(m.material) ? mats : mats[0];
@@ -347,7 +405,8 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
     Object.assign(sun.shadow.camera, {left: -15, right: 15, top: 10, bottom: -10, near: 1, far: 30});
     sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
     scene.add(sun);
-    buildClinic(scene, shadows, textureSet(base, renderer.capabilities.getMaxAnisotropy()));
+    const texSet = textureSet(base, renderer.capabilities.getMaxAnisotropy());
+    buildClinic(scene, shadows, texSet);
 
     const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 60);
     // Post-traitement : occlusion ambiante (GTAO), halo des lumières (bloom), tonemapping final.
@@ -422,29 +481,29 @@ export default function Clinic3D({options, onAnswer}: {options: string[]; onAnsw
       const clip = (n: string) => gltf.animations.find(a => a.name.endsWith(n))!;
       const spawn = (outfit: Outfit, x: number, z: number, ry: number, anim: string, y = 0) => {
         const o = cloneSkinned(gltf.scene); o.scale.setScalar(k); o.position.set(x, y, z); o.rotation.y = ry;
-        dress(o, outfit, shadows); scene.add(o);
+        dress(o, outfit, shadows, texSet); scene.add(o);
         const m = new THREE.AnimationMixer(o); mixers.push(m);
         const a = m.clipAction(clip(anim)); a.play(); a.time = Math.random() * a.getClip().duration;
         return {o, m};
       };
       // Joueur : sweat marine et jean.
-      const p = spawn({Shirt: '#1d2f5e', Pants: '#2c4a78', Socks: '#e8ecf2', Hair: '#1a1210'}, START.x, START.z, START.yaw, 'Man_Idle');
+      const p = spawn({Shirt: '#2a3f74', Pants: '#ffffff', Socks: '#e8ecf2', Hair: '#1a1210', shirtFabric: 'knit', pantsFabric: 'denim'}, START.x, START.z, START.yaw, 'Man_Idle');
       player.obj = p.o;
       for (const n of ['Man_Idle', 'Man_Walk', 'Man_Run']) player.actions[n] = p.m.clipAction(clip(n));
       player.current = 'Man_Idle';
       // Personnel assis aux postes (blouses), face aux patients.
       const scrubs = ['#2a8c9c', '#3a6fb8', '#2a8c9c', '#5b8f6a'];
-      BOOTHS.forEach((b, i) => spawn({Shirt: scrubs[i], Pants: scrubs[i], Skin: ['#8d5a3b', '#e0b48f', '#c58c63', '#6b4430'][i], Hair: '#1c1410'}, b.x, b.chairZ + 0.05, 0, 'Man_Sitting', 0.02));
+      BOOTHS.forEach((b, i) => spawn({Shirt: scrubs[i], Pants: scrubs[i], shirtFabric: 'jersey', pantsFabric: 'jersey', Skin: ['#8d5a3b', '#e0b48f', '#c58c63', '#6b4430'][i], Hair: '#1c1410'}, b.x, b.chairZ + 0.05, 0, 'Man_Sitting', 0.02));
       // Patients en salle d'attente, tournés vers les postes.
       const seatsTaken = [[0, 1], [0, 4], [1, 0], [1, 3], [1, 6], [2, 2], [2, 5]];
       const shirts = ['#c44d4d', '#e0a43c', '#4d7cc4', '#6a5acd', '#3a9e6e', '#d16a9e', '#7a8796'];
       seatsTaken.forEach(([r, s], i) => {
         const row = CHAIR_ROWS[r];
-        spawn({Shirt: shirts[i], Pants: ['#2b2f3a', '#3b4a63', '#5a4a3a'][i % 3], Skin: ['#e0b48f', '#8d5a3b', '#c58c63', '#f0c8a8', '#6b4430'][i % 5]},
+        spawn({Shirt: shirts[i], shirtFabric: i % 2 ? 'jersey' : 'knit', Pants: ['#ffffff', '#9aa5b4', '#c9bfb2'][i % 3], Skin: ['#e0b48f', '#8d5a3b', '#c58c63', '#f0c8a8', '#6b4430'][i % 5]},
           row.x0 + s * CHAIR_STEP, row.z + 0.08, Math.PI, 'Man_Sitting', 0.02);
       });
       // Agent debout à l'accueil.
-      spawn({Shirt: '#0a3f8c', Pants: '#1f2a3a', Skin: '#c58c63'}, (RECEPTION.minX + RECEPTION.maxX) / 2, RECEPTION.minZ - 0.6, 0, 'Man_Idle');
+      spawn({Shirt: '#0a3f8c', Pants: '#3b4a63', shirtFabric: 'jersey', Skin: '#c58c63'}, (RECEPTION.minX + RECEPTION.maxX) / 2, RECEPTION.minZ - 0.6, 0, 'Man_Idle');
       setStatus('ready');
     }, undefined, () => { if (!disposed) setStatus('error'); });
 
