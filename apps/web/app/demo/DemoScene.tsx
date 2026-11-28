@@ -53,6 +53,8 @@ export default function DemoScene() {
     stage.prepend(renderer.domElement);
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#b9cfe8');
+    // Profil qualité optionnel : ajustements des matériaux des avatars.
+    const cinematic = q.get('quality') === 'high';
     const camera = new THREE.PerspectiveCamera(60, 1, 0.05, 40);
     const resize = () => {
       const w = stage.clientWidth, h = stage.clientHeight;
@@ -119,7 +121,7 @@ export default function DemoScene() {
     const avatar = async (id: string, g: string, x: number, z: number, ry: number, k: string, shadow = 0.9) => {
       const [a, clip] = await Promise.all([gltf(`${base}avatars/${id}.glb`), anim(g, k)]);
       const o = a.scene; o.position.set(x, 0, z); o.rotation.y = ry;
-      o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.frustumCulled = false; (m.material as THREE.MeshStandardMaterial).envMapIntensity = 1.6; } });
+      o.traverse(n => { const m = n as THREE.Mesh; if (m.isMesh) { m.frustumCulled = false; for (const mat of (Array.isArray(m.material) ? m.material : [m.material]) as THREE.MeshStandardMaterial[]) { mat.envMapIntensity = cinematic ? 1.2 : 1.6; if (mat.map) mat.map.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); } } });
       if (shadow) shadowOf(o, shadow);
       if (!disposed) scene.add(o);
       const mx = new THREE.AnimationMixer(o); mixers.push(mx);
@@ -170,10 +172,10 @@ export default function DemoScene() {
       if (len > 0.05) {
         const n = Math.min(1, len), ux = fx / len, uy = fy / len;
         const mx = (Math.sin(camYaw) * uy - Math.cos(camYaw) * ux) * n, mz = (Math.cos(camYaw) * uy + Math.sin(camYaw) * ux) * n;
-        const run = inp.run || inp.keys.has('shift') || len > 0.95;
+        const run = inp.run || inp.keys.has('shift');
         const sp = (run ? 3.4 : 1.4) * dt;
         const next = move(player.pos, mx * sp, mz * sp);
-        speed = Math.hypot(next.x - player.pos.x, next.z - player.pos.z) / dt;
+        speed = Math.hypot(next.x - player.pos.x, next.z - player.pos.z) / Math.max(dt, 0.0001);
         player.pos = next;
         let d = Math.atan2(mx, mz) - player.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); player.yaw += d * Math.min(1, dt * 10);
         if (manual <= 0 && uy > -0.3) { let c = player.yaw - camYaw; c = Math.atan2(Math.sin(c), Math.cos(c)); camYaw += c * Math.min(1, dt * 1.5); }
