@@ -1,0 +1,29 @@
+name: Blender geometry audit
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/blender-audit.yml'
+      - 'scripts/blender/**'
+      - 'apps/web/public/game3d/demo/clinic_booth.glb'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Blender
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y blender
+          blender --version
+      - name: Inspect clinic geometry
+        run: blender -b --python-exit-code 1 --python scripts/blender/audit_clinic.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: blender-geometry-audit
+          path: blender-audit/geometry.json
+          if-no-files-found: error
