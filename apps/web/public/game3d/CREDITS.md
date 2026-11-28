@@ -30,3 +30,7 @@ dans `apps/web/app/Clinic3D.tsx`. Aucune donnée réelle de patient ni protocole
   `leather_white` → leather, `okoume_veneer` → veneer.
 - Réduites en 512 px ; knit, jersey et leather converties en niveaux de gris pour être teintées dans le code.
 - Plaquées par projection triplanaire (`Clinic3D.tsx`, fonction `triplanar`) : vêtements, rideaux, assises, façades de bureau.
+
+## props/ (potted_plant_02, WetFloorSign_01, wall_clock, clipboard, office_notepads)
+- Modèles Poly Haven (https://polyhaven.com/models), licence CC0 1.0, glTF 1K téléchargé depuis l'API officielle.
+- Simplifiés (meshopt), textures WebP 512 px : voir `tools/rocketbox/polyhaven_models.mjs`.
