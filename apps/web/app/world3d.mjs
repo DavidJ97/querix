@@ -3,7 +3,7 @@
 
 export const ROOM = {minX: -14, maxX: 14, minZ: -9, maxZ: 9, height: 4.2};
 export const START = {x: 0, z: 7, yaw: Math.PI}; // yaw = PI : regarde vers le fond (z négatif)
-export const PLAYER_RADIUS = 0.42;
+export const PLAYER_RADIUS = 0.32;
 
 // Postes de vaccination le long du mur du fond.
 export const BOOTHS = [
@@ -46,12 +46,6 @@ export function buildObstacles() {
     box(b.x - 1.25, b.x + 1.25, b.deskZ - 0.45, b.deskZ + 0.45, `bureau-${b.num}`);
     box(b.x - 0.4, b.x + 0.4, b.chairZ - 0.4, b.chairZ + 0.35, `chaise-${b.num}`);
   }
-  // Occupants assis : jambes et corps dépassent des chaises.
-  for (const [row, seat] of [[0,1],[0,4],[1,0],[1,3],[2,2],[2,5]]) {
-    const r = CHAIR_ROWS[row], x = r.x0 + seat * CHAIR_STEP;
-    box(x - 0.38, x + 0.38, r.z - 0.85, r.z + 0.45, 'patient');
-  }
-  box((RECEPTION.minX+RECEPTION.maxX)/2-0.4,(RECEPTION.minX+RECEPTION.maxX)/2+0.4,RECEPTION.minZ-1.05,RECEPTION.minZ-0.15,'receptionniste');
   // Cloisons-rideaux entre les postes (du mur jusqu'à l'avant des bureaux).
   for (const x of [-12, -7, -2, 4, 9]) box(x - 0.06, x + 0.06, ROOM.minZ, -5.7, 'cloison');
   for (const r of CHAIR_ROWS) box(r.x0 - 0.4, r.x0 + (r.n - 1) * CHAIR_STEP + 0.4, r.z - 0.35, r.z + 0.4, 'chaises');
@@ -74,20 +68,10 @@ export function canStand(x, z, r = PLAYER_RADIUS) {
 
 // Glissement le long des obstacles : déplacement complet, puis axe par axe.
 export function moveWithCollisions(p, dx, dz) {
-  const steps = Math.max(1, Math.ceil(Math.hypot(dx,dz)/0.035));
-  let x=p.x,z=p.z;
-  for(let i=0;i<steps;i++){
-    const a=dx/steps,b=dz/steps;
-    if(canStand(x+a,z+b)){x+=a;z+=b;continue;}
-    if(Math.abs(a)>=Math.abs(b)){
-      if(canStand(x+a,z))x+=a;
-      if(canStand(x,z+b))z+=b;
-    }else{
-      if(canStand(x,z+b))z+=b;
-      if(canStand(x+a,z))x+=a;
-    }
-  }
-  return {x,z};
+  if (canStand(p.x + dx, p.z + dz)) return {x: p.x + dx, z: p.z + dz};
+  if (dx && canStand(p.x + dx, p.z)) return {x: p.x + dx, z: p.z};
+  if (dz && canStand(p.x, p.z + dz)) return {x: p.x, z: p.z + dz};
+  return {x: p.x, z: p.z};
 }
 
 export function nearestZone(p, count) {
